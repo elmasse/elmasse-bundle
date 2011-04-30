@@ -3,7 +3,7 @@ Ext.ns('Ext.i18n');
 /**
  * @class Ext.18n.Bundle
  * @constructor
- * @version 0.2.1
+ * @version 0.3
  * @param config.bundle: {String} Bundle Name.
  * @param config.path: {String} Bundle Folder URI. Optional.
  * @param config.lang: {String} Language in the form xx-YY where:
@@ -13,30 +13,34 @@ Ext.ns('Ext.i18n');
  * 	
  * @author Maximiliano Fierro (elmasse)
  */
-Ext.i18n.Bundle = function(config){
+Ext.define('Ext.i18n.Bundle',{
+	extend: 'Ext.data.Store', 
 	
-	this.bundle = config.bundle;
-	this.path = config.path;
-	this.language = this.formatLanguageCode(config.lang || this.guessLanguage()); 
-	this.method = config.method || 'GET';
-
-	var url = this.buildURL(this.language);
-	
-    Ext.i18n.Bundle.superclass.constructor.call(this, {
-    	autoLoad: true,
-    	proxy: this.createProxy(url),
-        reader: new Ext.i18n.PropertyReader()
-    });
-
-	this.on('exception', this.loadParent);
-};
-
-Ext.extend(Ext.i18n.Bundle, Ext.data.Store,{ 
 	defaultLanguage: 'en-US',
 	loadFlag: false,
 	resourceExt: '.properties',
 	bundle: '',
 	path: null,
+	
+	constructor: function(config){
+
+		this.bundle = config.bundle;
+		this.path = config.path;
+		this.language = this.formatLanguageCode(config.lang || this.guessLanguage()); 
+		this.method = config.method || 'GET';
+
+		var url = this.buildURL(this.language);
+
+	    Ext.i18n.Bundle.superclass.constructor.call(this, {
+			model: Ext.ModelManager.getModel('PropertyModel'),
+	    	proxy: this.createProxy(url)
+	    });
+
+		this.proxy.on('exception', this.loadParent, this, {single: true});
+		this.on('load', this.onBundleLoad, this);
+		
+		this.load();
+	},
 	
 	/**
 	 * @private
@@ -53,7 +57,7 @@ Ext.extend(Ext.i18n.Bundle, Ext.data.Store,{
 	 * @return: {String} The bundle key content. 
 	 */
 	getMsg: function(key){
-		return this.getById(key)? Ext.util.Format.htmlDecode(this.getById(key).data) : key + '.undefined';
+		return this.getById(key)? Ext.util.Format.htmlDecode(this.getById(key).get('value')) : key + '.undefined';
 	},
 	
 	/**
@@ -63,8 +67,15 @@ Ext.extend(Ext.i18n.Bundle, Ext.data.Store,{
 	 */
 	onReady: function(fn){
 		this.readyFn = fn;
-		this.on('load', this.readyFn);
+		this.on('loaded', this.readyFn, this, {single: true});
 	},
+	
+	onBundleLoad: function(store, record, success, operation) {
+		if(success){
+			this.fireEvent('loaded');
+		}
+    },
+	
 	
 	/**
 	 * @private
@@ -84,7 +95,6 @@ Ext.extend(Ext.i18n.Bundle, Ext.data.Store,{
 	loadParent: function(){
 		var url = this.buildURL();
 		this.proxy = this.createProxy(url);
-		this.un('exception', this.loadParent);
 		this.load();			
 	},
 	
@@ -92,10 +102,11 @@ Ext.extend(Ext.i18n.Bundle, Ext.data.Store,{
 	 * @private
 	 */
 	createProxy: function(url){
-		return new Ext.data.HttpProxy({
+		return new Ext.data.proxy.Ajax({
     		url: url, 
-    		method: this.method
-    	})
+    		method: this.method,
+    		reader: new Ext.i18n.PropertyReader()
+		});
 	},
 	
 	/**

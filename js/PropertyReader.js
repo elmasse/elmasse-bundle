@@ -1,4 +1,12 @@
 Ext.ns('Ext.i18n');
+
+Ext.define("PropertyModel",{
+  	extend: "Ext.data.Model",
+	idProperty: 'key',
+	fields: ['key', 'value']
+});
+
+
 /**
  * 
  * PropertyReader is used to read data from a .properties files
@@ -12,24 +20,27 @@ Ext.ns('Ext.i18n');
  * 
  * @author Maximiliano Fierro (elmasse)
  */
-Ext.i18n.PropertyReader = function(meta, recordType){
-	
-	meta = meta || {};
-    
-	Ext.applyIf(meta, {
-        idProperty: 'id',
-        successProperty: 'success',
-        totalProperty: 'total'
-    });
-	
-	recordType = recordType || Ext.data.Record.create(['value']);
-	
-	//call super
-	Ext.i18n.PropertyReader.superclass.constructor.call(this, meta, recordType); 
-	
-}
+Ext.define('Ext.i18n.PropertyReader', {
+    extend: 'Ext.data.reader.Reader',
+    alias : 'reader.propertyReader',
 
-Ext.extend(Ext.i18n.PropertyReader, Ext.data.DataReader,{
+	constructor: function(config){
+
+		config = config || {};
+
+		Ext.applyIf(config, {
+	        idProperty: 'id',
+	        successProperty: 'success',
+	        totalProperty: 'total',
+			model: Ext.ModelManager.getModel('PropertyModel')
+	    });
+
+	//	recordType = recordType || Ext.data.Record.create(['value']);
+
+		//call super
+		Ext.i18n.PropertyReader.superclass.constructor.call(this, config); 
+
+	},
 	/**
 	 * @cfg propertySeparator: {String}. Default: " ". Optional
 	 */
@@ -56,17 +67,26 @@ Ext.extend(Ext.i18n.PropertyReader, Ext.data.DataReader,{
 			key = String(f[i].substring(0, kLim));
 			value = f[i].substring(kLim+1).trim().replace(/\"/g, '');
 			
-			var record = new Record(value, key);
+			var record = Ext.ModelMgr.create({
+			    value : value,
+			    key  : key
+			}, 'PropertyModel');
+			//bad Model implementation
+			record.id = key;	
 			records[i] = record;
 		}
 		
-		
-		return {
-	        success : success,
-	        records : records,
-	        totalRecords : f.length || totalRecords
-	    };
+		return new Ext.data.ResultSet({
+            total  : records.length,
+            count  : records.length,
+            records: records,
+            success: success
+        });
 	
+	},
+	
+	createAccessor: function(){
+		
 	},
 	
 	//private
@@ -76,7 +96,7 @@ Ext.extend(Ext.i18n.PropertyReader, Ext.data.DataReader,{
 		
 		for(var i = 0; i < aux.length; i++){
 			if(aux[i].indexOf("#") < 0 || (aux[i].indexOf("#") > aux[i].indexOf("\""))){
-				var line = Ext.util.Format.trim(aux[i]);
+				var line = aux[i];//Ext.util.Format.trim(aux[i]);
 				if(line)
 					lines.push(line);
 			}	

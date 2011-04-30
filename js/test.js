@@ -15,15 +15,33 @@ Ext.onReady(function(){
 		
 	var bundle = new Ext.i18n.Bundle({bundle:'Application', path:'resources', lang: lang});
 	bundle.onReady(function(){
-
-	var panel = new Ext.Panel({
-		renderTo: 'panelTest',
-		title: bundle.getMsg('panel.title'),
-		height: 300,
-		width: 800,
-		html: bundle.getMsg('panel.html')
-		
-	});	
+	
+		Ext.create('Ext.panel.Panel', {
+		    title: bundle.getMsg('panel.title'),
+		    width: 200,
+		    html: bundle.getMsg('panel.html'),
+		    renderTo: document.body
+		});
+	
+	// 	var toolbar = new Ext.Toolbar({
+	// 	title: bundle.getMsg('panel.title'),
+	// 	dock: 'top',
+	// 	items: [{
+	// 		text: Ext.String.format(bundle.getMsg('back.button'), 'Formated'),
+	// 		ui: 'back'
+	// 	},'|',{
+	// 		text: 'Home'
+	// 	}]
+	// });
+	// 
+	// var viewport = new Ext.Panel({
+	//     fullscreen: true,
+	//     animation: 'slide',
+	//    // scroll: 'vertical',
+	//     layout:{type: 'card'},
+	//     dockedItems: [toolbar],
+	//     html: bundle.getMsg('panel.html')
+	// });	
 		
 	}); //bundle.onReady
 });
