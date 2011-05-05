@@ -9,7 +9,7 @@ Ext.ns('Ext.i18n');
  * @param config.lang: {String} Language in the form xx-YY where:
  * 		xx: Language code (2 characters lowercase) YY: Country code (2 characters upercase). 
  * Optional. Default to browser's language. If it cannot be determined default to en-US.
- * @param config.method: {String} request method. POST | GET. Optional. Default to POST
+ * @param config.method: {String} request method. POST | GET. Optional. Default to GET
  * 	
  * @author Maximiliano Fierro (elmasse)
  */
@@ -33,7 +33,11 @@ Ext.define('Ext.i18n.Bundle',{
 
 	    Ext.i18n.Bundle.superclass.constructor.call(this, {
 			model: Ext.ModelManager.getModel('PropertyModel'),
-	    	proxy: this.createProxy(url)
+	    	proxy: {
+				type: 'ajax',
+				url: url,
+				reader: 'propertyReader'
+			}
 	    });
 
 		this.proxy.on('exception', this.loadParent, this, {single: true});
@@ -69,13 +73,15 @@ Ext.define('Ext.i18n.Bundle',{
 		this.readyFn = fn;
 		this.on('loaded', this.readyFn, this, {single: true});
 	},
-	
+
+	/**
+	 * @private
+	 */	
 	onBundleLoad: function(store, record, success, operation) {
 		if(success){
 			this.fireEvent('loaded');
 		}
     },
-	
 	
 	/**
 	 * @private
@@ -93,20 +99,8 @@ Ext.define('Ext.i18n.Bundle',{
 	 * @private
 	 */
 	loadParent: function(){
-		var url = this.buildURL();
-		this.proxy = this.createProxy(url);
+		this.proxy.url = this.buildURL();
 		this.load();			
-	},
-	
-	/**
-	 * @private
-	 */
-	createProxy: function(url){
-		return new Ext.data.proxy.Ajax({
-    		url: url, 
-    		method: this.method,
-    		reader: new Ext.i18n.PropertyReader()
-		});
 	},
 	
 	/**

@@ -24,6 +24,11 @@ Ext.define('Ext.i18n.PropertyReader', {
     extend: 'Ext.data.reader.Reader',
     alias : 'reader.propertyReader',
 
+	/**
+	 * @cfg propertySeparator: {String}. Default: " ". Optional
+	 */
+	propertySeparator: " ",
+
 	constructor: function(config){
 
 		config = config || {};
@@ -35,17 +40,12 @@ Ext.define('Ext.i18n.PropertyReader', {
 			model: Ext.ModelManager.getModel('PropertyModel')
 	    });
 
-	//	recordType = recordType || Ext.data.Record.create(['value']);
-
 		//call super
 		Ext.i18n.PropertyReader.superclass.constructor.call(this, config); 
 
 	},
-	/**
-	 * @cfg propertySeparator: {String}. Default: " ". Optional
-	 */
-	propertySeparator: " ",	
 
+	
 	read: function(response){
 		var propertyFile = response.responseText;
 		if(!propertyFile)
@@ -71,7 +71,7 @@ Ext.define('Ext.i18n.PropertyReader', {
 			    value : value,
 			    key  : key
 			}, 'PropertyModel');
-			//bad Model implementation
+
 			record.id = key;	
 			records[i] = record;
 		}
