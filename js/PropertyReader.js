@@ -65,7 +65,7 @@ Ext.define('Ext.i18n.PropertyReader', {
 			var key, value, kLim;
 			kLim = f[i].indexOf(this.propertySeparator);
 			key = String(f[i].substring(0, kLim));
-			value = f[i].substring(kLim+1).trim().replace(/\"/g, '');
+			value = Ext.String.trim(f[i].substring(kLim+1)).replace(/\"/g, '');
 			
 			var record = Ext.ModelMgr.create({
 			    value : value,
@@ -89,16 +89,17 @@ Ext.define('Ext.i18n.PropertyReader', {
 		
 	},
 	
+	
 	//private
 	readLines: function(file){
 		var aux = String(file).split('\n');
-		var lines = new Array();
+		var lines = [];
 		
 		for(var i = 0; i < aux.length; i++){
+			//TODO: use a regEx in here
 			if(aux[i].indexOf("#") < 0 || (aux[i].indexOf("#") > aux[i].indexOf("\""))){
-				var line = aux[i];//Ext.util.Format.trim(aux[i]);
-				if(line)
-					lines.push(line);
+				var line = aux[i];
+				if(line) lines.push(line);
 			}	
 		}
 		return lines;
