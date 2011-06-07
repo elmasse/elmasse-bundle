@@ -24,11 +24,6 @@ Ext.define('Ext.i18n.PropertyReader', {
     extend: 'Ext.data.reader.Reader',
     alias : 'reader.propertyReader',
 
-	/**
-	 * @cfg propertySeparator: {String}. Default: " ". Optional
-	 */
-	propertySeparator: " ",
-
 	constructor: function(config){
 
 		config = config || {};
@@ -55,54 +50,42 @@ Ext.define('Ext.i18n.PropertyReader', {
 	},
 	
 	readRecords: function(propertyFile){
-		var totalRecords = 0, success = true;
-		var Record = this.recordType;
-		var records = [];
+		var Record = this.recordType,
+			records = [], record, kv,
+			f = this.readLines(propertyFile),
+			l = f.length;
 		
-		var f = this.readLines(propertyFile);
-		
-		for(var i = 0; i < f.length; i++){
-			var key, value, kLim;
-			kLim = f[i].indexOf(this.propertySeparator);
-			key = String(f[i].substring(0, kLim));
-			value = Ext.String.trim(f[i].substring(kLim+1)).replace(/\"/g, '');
-			
-			var record = Ext.ModelMgr.create({
-			    value : value,
-			    key  : key
-			}, 'PropertyModel');
+		for(var i = 0; i < l; i++){
+			var kl = f[i].search(/[\s:=]/);
+				record = Ext.ModelMgr.create({
+				    value : this.clearValueExtraChars(f[i].substring(kl+1)),
+				    key  :  this.clearKeyExtraChars(f[i].substring(0, kl))
+				}, 'PropertyModel');
 
-			record.id = key;	
-			records[i] = record;
+				records[i] = record;
 		}
 		
 		return new Ext.data.ResultSet({
             total  : records.length,
             count  : records.length,
             records: records,
-            success: success
+            success: true
         });
-	
 	},
 	
-	createAccessor: function(){
-		
+	createAccessor: function(){},
+	
+	clearKeyExtraChars: function(s){
+		return (s ? s.replace(/[:=]/gi, "") : "");
 	},
 	
+	clearValueExtraChars: function(s){
+		return (s ? s.replace(/\\\s*\n/gi, "") : "");
+	},
 	
 	//private
 	readLines: function(file){
-		var aux = String(file).split('\n');
-		var lines = [];
-		
-		for(var i = 0; i < aux.length; i++){
-			//TODO: use a regEx in here
-			if(aux[i].indexOf("#") < 0 || (aux[i].indexOf("#") > aux[i].indexOf("\""))){
-				var line = aux[i];
-				if(line) lines.push(line);
-			}	
-		}
-		return lines;
+		return (file ? file.match(/.*(.*\\\s*\n)+.*|^((?!^\s*[#!]).).*$/gim) : []);
 	}
 
 });

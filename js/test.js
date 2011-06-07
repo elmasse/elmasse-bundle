@@ -17,31 +17,16 @@ Ext.onReady(function(){
 	bundle.onReady(function(){
 	
 		Ext.create('Ext.panel.Panel', {
-		    title: bundle.getMsg('panel.title'),
-		    width: 200,
-		    html: bundle.getMsg('panel.html'),
+			tbar: Ext.create('Ext.toolbar.Toolbar',{
+				items: [{text: bundle.getMsg('panel.toolbar.button1')}]
+			}),
+			title: Ext.String.format(bundle.getMsg('panel.title.formatted'), 'Showing'),
+		    width: 500,
+		    html: bundle.getMsg('panel.html') + bundle.getMsg('panel.content'),
 		    renderTo: document.body
 		});
 	
-	// 	var toolbar = new Ext.Toolbar({
-	// 	title: bundle.getMsg('panel.title'),
-	// 	dock: 'top',
-	// 	items: [{
-	// 		text: Ext.String.format(bundle.getMsg('back.button'), 'Formated'),
-	// 		ui: 'back'
-	// 	},'|',{
-	// 		text: 'Home'
-	// 	}]
-	// });
-	// 
-	// var viewport = new Ext.Panel({
-	//     fullscreen: true,
-	//     animation: 'slide',
-	//    // scroll: 'vertical',
-	//     layout:{type: 'card'},
-	//     dockedItems: [toolbar],
-	//     html: bundle.getMsg('panel.html')
-	// });	
+
 		
 	}); //bundle.onReady
 });
