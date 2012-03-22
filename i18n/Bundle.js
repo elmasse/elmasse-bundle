@@ -146,8 +146,6 @@ Ext.define('Ext.i18n.Bundle', {
 	 * @private
 	 */
 	onProxyLoad: function(op){
-        debugger;
-
 		if(op.getRecords()){
 
 			this.callParent(arguments);
