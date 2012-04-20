@@ -167,7 +167,7 @@ Ext.define('Ext.i18n.Bundle', {
 	 * @private
 	 */
 	loadParent: function(){
-		this.getProxy().setUrl(this.buildURL());
+		this.getProxy().url = this.buildURL();
 		this.load();			
 	},
 	
