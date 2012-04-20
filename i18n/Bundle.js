@@ -147,6 +147,7 @@ Ext.define('Ext.i18n.Bundle', {
 	 */
 	onProxyLoad: function(op){
 		if(op.getRecords()){
+
 			this.callParent(arguments);
 		}
 	},

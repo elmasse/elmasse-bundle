@@ -18,11 +18,11 @@ Ext.define('Ext.i18n.reader.Property', {
 	    return this.readRecords(response);
 	},
 	
+
 	getData: function(data){
         var records = [], record, kv,
 			f = this.readLines(data),
 			l = f.length;
-		
 		for(var i = 0; i < l; i++){
 			var kl = f[i].search(/[\s:=]/);
 				record = {
@@ -33,58 +33,7 @@ Ext.define('Ext.i18n.reader.Property', {
 		}
 		return records;
 	},
-/*	
-    createAccessor: function() {
-        var re = /[\[\.]/;
 
-        return function(expr) {
-            if (Ext.isEmpty(expr)) {
-                return Ext.emptyFn;
-            }
-            if (Ext.isFunction(expr)) {
-                return expr;
-            }
-            if (this.useSimpleAccessors !== true) {
-                var i = String(expr).search(re);
-                if (i >= 0) {
-                    return Ext.functionFactory('obj', 'return obj' + (i > 0 ? '.' : '') + expr);
-                }
-            }
-            return function(obj) {
-                return obj[expr];
-            };
-        };
-    }(),
-
-    createFieldAccessExpression: function() {
-        var re = /[\[\.]/;
-
-        return function(field, fieldVarName, dataName) {
-            var me     = this,
-                map    = (field.mapping == null) ? field.name : field.mapping,
-                result,
-                operatorSearch;
-
-            if (typeof map === 'function') {
-                result = fieldVarName + '.mapping(' + dataName + ', this)';
-            } else if (this.useSimpleAccessors === true || ((operatorSearch = String(map).search(re)) < 0)) {
-                if (isNaN(map)) {
-                    map = '"' + map + '"';
-                }
-                result = dataName + "[" + map + "]";
-            } else {
-                result = dataName + (operatorSearch > 0 ? '.' : '') + map;
-            }
-            if (field.defaultValue !== undefined) {
-                result = '(' + result + ' === undefined) ? ' + fieldVarName + '.defaultValue : ' + result;
-            }
-            if (field.convert) {
-                result = fieldVarName + '.convert(' + result + ', record)';
-            }
-            return result;
-        };
-    }(),
-	*/
 	clearKeyExtraChars: function(s){
 		return (s ? s.replace(/[:=]/gi, "") : "");
 	},
