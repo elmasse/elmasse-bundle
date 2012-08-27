@@ -1,5 +1,5 @@
 /**
- * @author Maximiliano Fierr
+ * @author Maximiliano Fierro
  * @class Ext.i18n.Bundle
  * @extends Ext.data.Store
  *
