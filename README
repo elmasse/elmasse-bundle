@@ -1,7 +1,6 @@
 Ext.i18n.Bundle
 
+
+
 version: 0.3.1
-
-This version is the first working draft for ExtJS 4.1.0-r3
-
-I'm currently working on documentation. See the Wiki. 
+    First draft for ExtJS 4.1.0-r3

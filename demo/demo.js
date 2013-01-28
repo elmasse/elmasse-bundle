@@ -1,29 +1,36 @@
-Ext.require('Ext.i18n.Bundle', function(){
-	//create global bundle in here
-	Ext.i18n.appBundle = Ext.create('Ext.i18n.Bundle',{
+Ext.application({
+    requires: ['Ext.i18n.Bundle'],
+
+	name: 'AppTest',
+    appFolder: 'demo',
+
+    views: ['Main'],
+
+    //define bundle properties
+	bundle: {
 		bundle: 'Application',
 		lang: 'en-US',
 		path: 'resources',
 		noCache: true
-	});
-});
+	},
 
+    launch: function(){
+        Ext.create('AppTest.view.Main', {
+            renderTo: Ext.getBody()
+        });
+    }
 
-Ext.application({
-	name: 'AppTest',
-	launch: function(){
+    // launch:function(){
+    //      Ext.create('Ext.panel.Panel',{
+    //         renderTo: Ext.getBody(),
+    //         tbar: Ext.create('Ext.toolbar.Toolbar',{
+    //                items: [{text: 'text'}]
+    //            }),
+    //         items:[{
+    //             height: 300,
+    //             html: AppTest.getApplication().bundle.getMsg('panel.html')
+    //         }]
+    //     });
+    // }
 
-		Ext.i18n.appBundle.onReady(function(){
-			Ext.create('Ext.panel.Panel',{
-				renderTo: Ext.getBody(),
-				tbar: Ext.create('Ext.toolbar.Toolbar',{
-	                items: [{text: 'text'}]
-	            }),
-				items:[{
-					height: 300,
-					html: Ext.i18n.appBundle.getMsg('panel.html')
-				}],
-			});
-		});//end bundle on ready
-	}
 });	

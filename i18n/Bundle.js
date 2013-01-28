@@ -5,24 +5,30 @@
  *
  * Bundle is used to load .properties bundle files based in language and expose the bundle's keys thru getMsg method.
  <code>
+
 Ext.application({
 	name: 'AppTest',
-	launch: function(){
+    requires: ['Ext.i18n.Bundle'],
 
-		bundle = Ext.create('Ext.i18n.Bundle',{
-			bundle: 'Application',
-			lang: 'es-ES',
-			path: 'resources',
-			noCache: false
-		});
+    bundle: {
+        bundle: 'Application',
+        lang: 'en-US',
+        path: 'resources',
+        noCache: true
+    },
 
-		bundle.onReady(function(){
-			Ext.create('Ext.Panel',{
-				fullscreen: true,
-				html: bundle.getMsg('panel.html')
-			});
-		});
-	}
+    launch: function(){
+        Ext.create('Ext.panel.Panel',{
+            renderTo: Ext.getBody(),
+            tbar: Ext.create('Ext.toolbar.Toolbar',{
+                items: [{text: 'text'}]
+            }),
+            items:[{
+                height: 300,
+                html: this.bundle.getMsg('panel.html')
+            }],
+        });
+    }	
 });
 
  </code>
@@ -33,13 +39,13 @@ Ext.define('Ext.i18n.Bundle', {
 		'Ext.i18n.reader.Property',
 		'Ext.i18n.model.Property'
 	],
-	
+
 	//@private
 	defaultLanguage: 'en-US',
 	//@private
 	resourceExt: '.properties',
-	
-	config:{
+
+	config: {
 		/**
 		 * @cfg bundle {String} bundle name for properties file. Default to message  
 		 */
@@ -52,8 +58,8 @@ Ext.define('Ext.i18n.Bundle', {
 
 		/**
 		 * @cfg lang {String} Language in the form xx-YY where:
-		 * 		xx: Language code (2 characters lowercase) 
-    	 *      YY: Country code (2 characters upercase). 
+		 *		xx: Language code (2 characters lowercase) 
+         *      YY: Country code (2 characters upercase).
 		 * Optional. Default to browser's language. If it cannot be determined default to en-US.
 		 */
 		
@@ -67,7 +73,7 @@ Ext.define('Ext.i18n.Bundle', {
 	constructor: function(config){
 		config = config || {};
 
-		var me = this,
+		var me = this,            
 			language = me.formatLanguageCode(config.lang || me.guessLanguage()),
 			noCache = (config.noCache !== false),
 			url;
@@ -93,23 +99,20 @@ Ext.define('Ext.i18n.Bundle', {
 				},
 				//avoid sending limit, start & group params to server
 				getParams: Ext.emptyFn
-			},
-			listeners:{
-				'load': this.onBundleLoad,
-				scope: this
 			}
 		});
 
+
 		me.callParent([config]);
-		me.getProxy().on('exception', this.loadParent, this, {single: true});
+		me.on('load', me.onBundleLoad, me);
+        me.getProxy().on('exception', this.loadParent, this, {single: true});
 	},
 	
 	/**
 	 * @private
 	 */
 	guessLanguage: function(){
-		return (navigator.language || navigator.browserLanguage
-				|| navigator.userLanguage || this.defaultLanguage);
+		return (navigator.language || navigator.browserLanguage || navigator.userLanguage || this.defaultLanguage);
 	},
 	
 	/**
@@ -121,16 +124,6 @@ Ext.define('Ext.i18n.Bundle', {
 	getMsg: function(key){
 		var rec = this.getById(key);
 		return rec ? Ext.util.Format.htmlDecode(rec.get('value')) : key + '.undefined';
-	},
-	
-	/**
-	 * @method: onReady
-	 * The fn will be called when the Bundle file is loaded.
-	 * @param: fn {Function}
-	 */
-	onReady: function(fn){
-		this.readyFn = fn;
-		this.on('loaded', this.readyFn, this);
 	},
 	
 	/**
@@ -147,7 +140,6 @@ Ext.define('Ext.i18n.Bundle', {
 	 */
 	onProxyLoad: function(op){
 		if(op.getRecords()){
-
 			this.callParent(arguments);
 		}
 	},
@@ -182,6 +174,34 @@ Ext.define('Ext.i18n.Bundle', {
 		return langCodes.join('-');
 	}
 	
-	
-	
+}, function(){
+    //initialize bundle before app launch
+	Ext.override(Ext.app.Application, {
+        onBeforeLaunch: function() {
+            var me = this,
+                overridden = this.onBeforeLaunch.$previous,
+                ns;
+
+            //this is solved on 4.1.2
+            ns = Ext.namespace(me.name);
+            if (ns) {
+                ns.getApplication = function() {
+                    return me;
+                };
+            }
+
+            if(me.bundle){
+                //configure the bundle instance and defer launch until bundle launch
+                me.bundle = Ext.create('Ext.i18n.Bundle', Ext.apply({
+                    listeners: {
+                        loaded: function(){
+                            overridden.apply(me);
+                        }
+                    }
+                }, me.bundle));
+        }else{
+                me.callOverridden();
+            }
+        }
+    });
 });
