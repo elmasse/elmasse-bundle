@@ -4,40 +4,39 @@
  * @extends Ext.data.Store
  *
  * Bundle is used to load .properties bundle files based in language and expose the bundle's keys thru getMsg method.
- <code>
+ 
 
-Ext.application({
-	name: 'AppTest',
-    requires: ['Ext.i18n.Bundle'],
+        Ext.application({
+        	name: 'AppTest',
+            requires: ['Ext.i18n.Bundle'],
 
-    bundle: {
-        bundle: 'Application',
-        lang: 'en-US',
-        path: 'resources',
-        noCache: true
-    },
+            bundle: {
+                bundle: 'Application',
+                lang: 'en-US',
+                path: 'resources',
+                noCache: true
+            },
 
-    launch: function(){
-        Ext.create('Ext.panel.Panel',{
-            renderTo: Ext.getBody(),
-            tbar: Ext.create('Ext.toolbar.Toolbar',{
-                items: [{text: 'text'}]
-            }),
-            items:[{
-                height: 300,
-                html: this.bundle.getMsg('panel.html')
-            }],
+            launch: function(){
+                Ext.create('Ext.panel.Panel',{
+                    renderTo: Ext.getBody(),
+                    tbar: Ext.create('Ext.toolbar.Toolbar',{
+                        items: [{text: 'text'}]
+                    }),
+                    items:[{
+                        height: 300,
+                        html: this.bundle.getMsg('panel.html')
+                    }],
+                });
+            }
         });
-    }	
-});
 
- </code>
  */
 Ext.define('Ext.i18n.Bundle', {
 	extend: 'Ext.data.Store',
 	requires: [
-		'Ext.i18n.reader.Property',
-		'Ext.i18n.model.Property'
+        'Ext.app.Application',
+		'Ext.i18n.reader.Property'
 	],
 
 	//@private
@@ -45,9 +44,13 @@ Ext.define('Ext.i18n.Bundle', {
 	//@private
 	resourceExt: '.properties',
 
+
 	config: {
+        autoLoad: true,
+        fields: ['key', 'value'],
+
 		/**
-		 * @cfg bundle {String} bundle name for properties file. Default to message  
+		 * @cfg bundle {String} bundle name for properties file. Default to message
 		 */
 		bundle: 'message',
 
@@ -58,22 +61,24 @@ Ext.define('Ext.i18n.Bundle', {
 
 		/**
 		 * @cfg lang {String} Language in the form xx-YY where:
-		 *		xx: Language code (2 characters lowercase) 
+		 *		xx: Language code (2 characters lowercase)
          *      YY: Country code (2 characters upercase).
 		 * Optional. Default to browser's language. If it cannot be determined default to en-US.
 		 */
 		
 		/**
-		 * @cfg noCache {boolean} whether or not to disable Proxy's cache. Optional. Defaults to true. 
+		 * @cfg noCache {boolean} whether or not to disable Proxy's cache. Optional. Defaults to true.
 		 */
 		
 	},
 	
+
+    
 	
 	constructor: function(config){
 		config = config || {};
 
-		var me = this,            
+		var me = this,
 			language = me.formatLanguageCode(config.lang || me.guessLanguage()),
 			noCache = (config.noCache !== false),
 			url;
@@ -88,14 +93,13 @@ Ext.define('Ext.i18n.Bundle', {
 		delete config.noCache;
 		
 		Ext.applyIf(config, {
-			autoLoad: true,
-			model: 'Ext.i18n.model.Property',
 			proxy:{
 				type: 'ajax',
 				url: url,
 				noCache: noCache,
 				reader: {
-					type: 'property'
+					type: 'property',
+                    idProperty: 'key'
 				},
 				//avoid sending limit, start & group params to server
 				getParams: Ext.emptyFn
@@ -119,7 +123,7 @@ Ext.define('Ext.i18n.Bundle', {
 	 * @method: getMsg
 	 * Returns the content associated with the bundle key or {bundle key}.undefined if it is not specified.
 	 * @param: key {String} Bundle key.
-	 * @return: {String} The bundle key content. 
+	 * @return: {String} The bundle key content.
 	 */
 	getMsg: function(key){
 		var rec = this.getById(key);
@@ -132,6 +136,7 @@ Ext.define('Ext.i18n.Bundle', {
 	onBundleLoad: function(store, record, success, op) {
 		if(success){
 			this.fireEvent('loaded');
+
 		}
     },
 
@@ -161,7 +166,7 @@ Ext.define('Ext.i18n.Bundle', {
 	 */
 	loadParent: function(){
 		this.getProxy().url = this.buildURL();
-		this.load();			
+		this.load();
 	},
 	
 	/**
