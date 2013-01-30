@@ -7,7 +7,7 @@
  
 
         Ext.application({
-        	name: 'AppTest',
+            name: 'AppTest',
             requires: ['Ext.i18n.Bundle'],
 
             bundle: {
@@ -72,8 +72,6 @@ Ext.define('Ext.i18n.Bundle', {
 		
 	},
 	
-
-    
 	
 	constructor: function(config){
 		config = config || {};
