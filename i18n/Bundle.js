@@ -36,7 +36,8 @@ Ext.define('Ext.i18n.Bundle', {
 	extend: 'Ext.data.Store',
 	requires: [
         'Ext.app.Application',
-		'Ext.i18n.reader.Property'
+		'Ext.i18n.reader.Property',
+        'Ext.String'
 	],
 
 	//@private
@@ -121,11 +122,26 @@ Ext.define('Ext.i18n.Bundle', {
 	 * @method: getMsg
 	 * Returns the content associated with the bundle key or {bundle key}.undefined if it is not specified.
 	 * @param: key {String} Bundle key.
+     * @param: values {Mixed...} if the bundle key contains any placeholder then you can add any number of values
+     * that will be replaced in the placeholder token.
 	 * @return: {String} The bundle key content.
 	 */
-	getMsg: function(key){
-		var rec = this.getById(key);
-		return rec ? Ext.util.Format.htmlDecode(rec.get('value')) : key + '.undefined';
+	getMsg: function(key /*values...*/){
+        var values = [].splice.call(arguments, 1),
+            rec = this.getById(key),
+            decoded = key + '.undefined',
+            args;
+	
+        if(rec){
+            decoded = Ext.util.Format.htmlDecode(rec.get('value'));
+            
+            if(values){
+                args = [decoded].concat(values);
+                decoded = Ext.String.format.apply(null, args);
+            }
+        }
+
+        return decoded;
 	},
 	
 	/**

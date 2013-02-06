@@ -12,7 +12,16 @@ Ext.define('AppTest.view.Main', {
         me.items = [
             {
                 height: 300,
-                html: AppTest.getApplication().bundle.getMsg('panel.html')
+                html: AppTest.getApplication().bundle.getMsg('panel.html'),
+                tbar: {
+                    xtype: 'toolbar',
+                    items: [
+                        {
+                            xtype: 'button',
+                            text: AppTest.getApplication().bundle.getMsg('back.button', 'Back button')
+                        }
+                    ]
+                }
             }
         ];
 
