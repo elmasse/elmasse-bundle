@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <title>Test | Ext.i18n.Bundle</title>
+
+    <link rel="stylesheet" href="http://pivotal.github.com/jasmine/lib/jasmine.css"/>
+
+    <script src="http://pivotal.github.com/jasmine/lib/jasmine.js"></script>
+    <script src="http://pivotal.github.com/jasmine/lib/jasmine-html.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="http://cdn.sencha.io/ext-4.1.1-gpl/resources/css/ext-all.css" />
+    <script type="text/javascript" charset="utf-8" src="http://cdn.sencha.io/ext-4.1.1-gpl/ext-all-debug.js"></script>
+
+    <!-- Tests -->
+    <script type="text/javascript" src="Bundle.js"></script>
+
+
+    <script type="text/javascript">
+
+        // Jasmine
+        // -------------------
+
+        (function() {
+            var jasmineEnv = jasmine.getEnv();
+            jasmineEnv.updateInterval = 250;
+
+            var htmlReporter = new jasmine.HtmlReporter();
+            jasmineEnv.addReporter(htmlReporter);
+
+            jasmineEnv.specFilter = function(spec) {
+                return htmlReporter.specFilter(spec);
+            };
+
+            var currentWindowOnload = window.onload;
+            window.onload = function() {
+                if (currentWindowOnload) {
+                    currentWindowOnload();
+                }
+
+                execJasmine();
+            };
+
+            function execJasmine() {
+                jasmineEnv.execute();
+            }
+        })();
+
+    </script>
+</head>
+<body>
+</body>
+</html>    

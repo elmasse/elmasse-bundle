@@ -47,7 +47,7 @@ Ext.define('Ext.i18n.Bundle', {
 
 
 	config: {
-        autoLoad: true,
+        autoLoad: false,
         fields: ['key', 'value'],
 
 		/**
@@ -105,8 +105,8 @@ Ext.define('Ext.i18n.Bundle', {
 			}
 		});
 
-
 		me.callParent([config]);
+
 		me.on('load', me.onBundleLoad, me);
         me.getProxy().on('exception', this.loadParent, this, {single: true});
 	},
@@ -187,11 +187,14 @@ Ext.define('Ext.i18n.Bundle', {
 	 * @private
 	 */
 	formatLanguageCode: function(lang){
-		var langCodes = lang.split('-');
-		langCodes[0] = (langCodes[0]) ? langCodes[0].toLowerCase() : '';
-		langCodes[1] = (langCodes[1]) ? langCodes[1].toUpperCase() : '';
-		return langCodes.join('-');
+		var langCodes = lang.split('-'),
+            primary, second;
+		primary = (langCodes[0]) ? langCodes[0].toLowerCase() : '';
+		second = (langCodes[1]) ? langCodes[1].toUpperCase() : '';
+	
+        return langCodes.length > 1 ? [primary, second].join('-') : primary;
 	}
+
 	
 }, function(){
     //initialize bundle before app launch
@@ -212,6 +215,7 @@ Ext.define('Ext.i18n.Bundle', {
             if(me.bundle){
                 //configure the bundle instance and defer launch until bundle launch
                 me.bundle = Ext.create('Ext.i18n.Bundle', Ext.apply({
+                    autoLoad: true,
                     listeners: {
                         loaded: function(){
                             overridden.apply(me);

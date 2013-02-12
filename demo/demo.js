@@ -20,7 +20,7 @@ Ext.application({
         });
     }
 
-    // launch:function(){
+    // launch: function(){
     //      Ext.create('Ext.panel.Panel',{
     //         renderTo: Ext.getBody(),
     //         tbar: Ext.create('Ext.toolbar.Toolbar',{
@@ -33,4 +33,4 @@ Ext.application({
     //     });
     // }
 
-});	
+});
