@@ -36,8 +36,8 @@ Ext.define('Ext.i18n.Bundle', {
 	extend: 'Ext.data.Store',
 	requires: [
         'Ext.app.Application',
-		'Ext.i18n.reader.Property',
-        'Ext.String'
+		'Ext.i18n.reader.Property'
+        // 'Ext.String'
 	],
 
 	//@private
