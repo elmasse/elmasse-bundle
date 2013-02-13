@@ -1,7 +1,8 @@
 Ext.Loader.setConfig({
     enabled: true,
     paths: {
-        'Ext.i18n': '../i18n'
+        'Ext.i18n': '../i18n',
+        'mocks' : 'mocks'
     }
 });
 
@@ -55,8 +56,6 @@ describe("Ext.i18n.Bundle", function(){
             var sut = Ext.create('Ext.i18n.Bundle'),
                 url = 'resources/message_en-US.properties';
 
-            expect(sut.buildURL('en-US')).toEqual(url);
-
             expect(sut.setProxy).toHaveBeenCalledWith(jasmine.objectContaining({
                 url: url
             }));
@@ -73,8 +72,6 @@ describe("Ext.i18n.Bundle", function(){
                     path: path,
                     lang: lang
                 });
-
-            expect(sut.buildURL(lang)).toEqual(url);
 
             expect(sut.setProxy).toHaveBeenCalledWith(jasmine.objectContaining({
                 url: url
@@ -93,7 +90,6 @@ describe("Ext.i18n.Bundle", function(){
                     lang: lang
                 });
 
-            expect(sut.buildURL(lang)).toEqual(url);
 
             expect(sut.setProxy).toHaveBeenCalledWith(jasmine.objectContaining({
                 url: path+'/'+bundle+'_'+lang+'.properties'
@@ -105,21 +101,18 @@ describe("Ext.i18n.Bundle", function(){
             var bundle = 'Bundle',
                 path   = 'path',
                 lang   = 'en-us',
-                fmtLang= 'en-US',
-                url    = path+'/'+bundle+'_'+fmtLang+'.properties',
+                fmtLng = 'en-US',
+                url    = path+'/'+bundle+'_'+fmtLng+'.properties',
                 sut    = Ext.create('Ext.i18n.Bundle', {
                     bundle: bundle,
                     path: path,
                     lang: lang
                 });
 
-            expect(sut.buildURL(fmtLang)).toEqual(url);
-
             expect(sut.setProxy).toHaveBeenCalledWith(jasmine.objectContaining({
                 url: url
             }));
         });
-
 
         it("should generate the correct URL for the parent bundle", function(){
             var bundle = 'Bundle',
@@ -134,7 +127,87 @@ describe("Ext.i18n.Bundle", function(){
             expect(sut.buildURL()).toBe(path+'/'+bundle+'.properties');
         });
 
+    });
 
+    describe("When loading the bundle", function(){
+        var proxy,
+            RECS = [{key: 'key', value: 'value'}];
+           
+        retrieveMockedRecords = function(Model){
+            var recs = [],
+                l = RECS.length,
+                i = 0;
+
+            for(;i<l;i++){
+                recs.push(new Model(RECS[i]));
+            }
+
+            return recs;
+        };
+
+        createSuccessResultSetFor = function(Model){
+            var records = retrieveMockedRecords(Model),
+                total   = records.length;
+
+            return new Ext.data.ResultSet({
+                total  : total,
+                count  : total,
+                records: records,
+                success: true,
+                message: ''
+            });
+
+        };
+
+        beforeEach(function(){
+
+            proxy = Ext.create('mocks.Observable', {
+                read: Ext.emptyFn
+            });
+
+            spyOn(Ext.i18n.Bundle.prototype, 'setProxy').andCallFake(function(){
+                this.proxy = proxy;
+            });
+
+
+
+        });
+
+        it("should store keys/values if the bundle file is loaded", function(){
+            var sut = Ext.create('Ext.i18n.Bundle'),
+                Model = sut.model;
+
+            spyOn(proxy, 'read').andCallFake(function(operation, callback, scope){
+                var me = this,
+                    result = createSuccessResultSetFor(Model);
+
+                Ext.apply(operation, {
+                    resultSet: result
+                });
+
+                operation.commitRecords(result.records);
+                operation.setCompleted();
+                operation.setSuccessful();
+
+                callback.call(scope || me, operation);
+
+                me.fireEvent('load', proxy, [sut, operation.getRecords(), true, operation]);
+            });
+
+            spyOn(sut, 'onProxyLoad').andCallThrough();
+            spyOn(sut, 'onBundleLoad').andCallThrough();
+            spyOn(sut, 'fireEvent').andCallThrough();
+
+            sut.load();
+
+            expect(sut.onProxyLoad).toHaveBeenCalled();
+            expect(sut.fireEvent).toHaveBeenCalledWith('load', jasmine.any(Object), jasmine.any(Object), true);
+
+            // expect(sut.onBundleLoad).toHaveBeenCalled();
+
+            expect(sut.getMsg(RECS[0].key)).toEqual(RECS[0].value);
+
+        });
 
     });
 });

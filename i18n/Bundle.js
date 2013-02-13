@@ -72,7 +72,7 @@ Ext.define('Ext.i18n.Bundle', {
 		 */
 		
 	},
-	
+
 	
 	constructor: function(config){
 		config = config || {};
@@ -147,10 +147,9 @@ Ext.define('Ext.i18n.Bundle', {
 	/**
 	 * @private
 	 */
-	onBundleLoad: function(store, record, success, op) {
-		if(success){
+	onBundleLoad: function(store, records, success, op) {
+        if(success){
 			this.fireEvent('loaded');
-
 		}
     },
 
