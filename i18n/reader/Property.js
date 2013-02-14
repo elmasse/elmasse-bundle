@@ -25,10 +25,10 @@ Ext.define('Ext.i18n.reader.Property', {
         }
     },
 
-
     getResponseData: function(response){
         return this.readRecords(response);
     },
+
 
     getData: function(data){
         var records = [], record, kv,
