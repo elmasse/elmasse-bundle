@@ -36,15 +36,14 @@ Ext.define('Ext.i18n.Bundle', {
 	extend: 'Ext.data.Store',
 	requires: [
         'Ext.app.Application',
-		'Ext.i18n.reader.Property'
+		'Ext.i18n.reader.Property',
+        'Ext.i18n.reader.Json'
+
         // 'Ext.String'
 	],
 
 	//@private
 	defaultLanguage: 'en-US',
-	//@private
-	resourceExt: '.properties',
-
 
 	config: {
         autoLoad: false,
@@ -55,6 +54,7 @@ Ext.define('Ext.i18n.Bundle', {
 		 */
 		bundle: 'message',
 
+        type : 'property',
 		/**
 		 * @cfg path {String} URI to properties files. Default to resources
 		 */
@@ -85,7 +85,8 @@ Ext.define('Ext.i18n.Bundle', {
 		me.language = language;
 		me.bundle = config.bundle || me.bundle;
 		me.path = config.path || me.path;
-			
+        me.type = config.type || me.type;
+
 		url = this.buildURL(language);
 
 		delete config.lang;
@@ -97,7 +98,7 @@ Ext.define('Ext.i18n.Bundle', {
 				url: url,
 				noCache: noCache,
 				reader: {
-					type: 'property',
+					type: 'i18n.'+ me.type,
                     idProperty: 'key'
 				},
 				//avoid sending limit, start & group params to server
@@ -162,6 +163,11 @@ Ext.define('Ext.i18n.Bundle', {
 		}
 	},
 	
+
+    getResourceExtension: function(){
+        return this.type === 'property' ? '.properties' : '.json';
+    },
+
 	/**
 	 * @private
 	 */
@@ -170,7 +176,7 @@ Ext.define('Ext.i18n.Bundle', {
 		if (this.path) url+= this.path + '/';
 		url+=this.bundle;
 		if (language) url+= '_'+language;
-		url+=this.resourceExt;
+		url+=this.getResourceExtension();
 		return url;
 	},
 	

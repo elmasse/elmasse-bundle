@@ -1,0 +1,9 @@
+{
+    "back" : {
+        "button" : "Go To {0}"
+    },
+
+    "panel" : {
+        "html" : "Something goes here from json without lang specified!" 
+    }
+}

@@ -1,6 +1,6 @@
 Ext.define('Ext.i18n.reader.Property', {
     extend: 'Ext.data.reader.Json',
-    alias : 'reader.property',
+    alias : 'reader.i18n.property',
 
     constructor: function(){
         var me = this,

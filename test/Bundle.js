@@ -169,8 +169,6 @@ describe("Ext.i18n.Bundle", function(){
                 this.proxy = proxy;
             });
 
-
-
         });
 
         it("should store keys/values if the bundle file is loaded", function(){
