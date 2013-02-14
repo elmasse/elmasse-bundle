@@ -54,7 +54,7 @@ Ext.define('Ext.i18n.Bundle', {
 		 */
 		bundle: 'message',
 
-        type : 'property',
+        format : 'property',
 		/**
 		 * @cfg path {String} URI to properties files. Default to resources
 		 */
@@ -85,7 +85,7 @@ Ext.define('Ext.i18n.Bundle', {
 		me.language = language;
 		me.bundle = config.bundle || me.bundle;
 		me.path = config.path || me.path;
-        me.type = config.type || me.type;
+        me.format = config.format || me.format;
 
 		url = this.buildURL(language);
 
@@ -98,7 +98,7 @@ Ext.define('Ext.i18n.Bundle', {
 				url: url,
 				noCache: noCache,
 				reader: {
-					type: 'i18n.'+ me.type,
+					type: 'i18n.'+ me.format,
                     idProperty: 'key'
 				},
 				//avoid sending limit, start & group params to server
@@ -165,7 +165,7 @@ Ext.define('Ext.i18n.Bundle', {
 	
 
     getResourceExtension: function(){
-        return this.type === 'property' ? '.properties' : '.json';
+        return this.format === 'property' ? '.properties' : '.json';
     },
 
 	/**

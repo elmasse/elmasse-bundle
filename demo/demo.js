@@ -13,7 +13,7 @@ Ext.application({
 		path: 'resources',
 		noCache: true
         // try adding this to read from json bundles!
-        // type: 'json'
+        // ,format: 'json'
 	},
 
     launch: function(){
