@@ -34,11 +34,55 @@
 		});
 
 
-##Changelog
-master:
-    - Draft for 4.1.1/2 
-    - Removed onReady method from Ext.i18n.Bundle
-    - Added bundle to application
+##NEW! Using json files as bundles
+Now you can choose between `.properties` and `.json` files. You can specify which one to use by using the `format` parameter in bundle configuration:
 
-version: 0.3.1
-    - First draft for ExtJS 4.1.0-r3
+
+        Ext.application({
+            name: 'AppTest',
+            requires: ['Ext.i18n.Bundle'],
+
+            //2
+            bundle: {
+                bundle: 'Application',
+                lang: 'en-US',
+                path: 'resources',
+                noCache: true,
+                format: 'json' //json format!
+            },
+
+            launch: function(){
+                Ext.create('Ext.panel.Panel',{
+                    renderTo: Ext.getBody(),
+                    tbar: Ext.create('Ext.toolbar.Toolbar',{
+                        items: [{text: 'text'}]
+                    }),
+                    items:[{
+                        height: 300,
+                        html: AppTest.getApplication().bundle.getMsg('panel.html')
+                    }]
+                });
+            }   
+        });
+
+As you can imagine the keys must match json keys structure, so for `panel.html` you must have a json response like this:
+
+        {
+            "panel":{
+                "html" : "Hello from JSON file!"
+            }
+        }
+
+
+
+##Changelog
+
+###master:
+- New Json Reader implemented
+- Added tests for Bundle, reader.Property and reader.Json
+- Draft for 4.1.1/2 
+- Removed onReady method from Ext.i18n.Bundle
+- Added bundle to application
+
+###version: 0.3.1
+- First draft for ExtJS 4.1.0-r3
