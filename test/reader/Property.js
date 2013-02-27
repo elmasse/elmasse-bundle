@@ -205,5 +205,50 @@ describe("Ext.i18n.reader.Property", function(){
         });
     });
 
+    describe("should remove EOL markers", function(){
+      
+        it("should handle CR ('\\n') as in This \n text", function(){
+            var response = {
+                    responseText: "property:some Value.\nproperty2:another value\n"
+                },
+                result, record;
+
+            result =sut.read(response);
+
+            expect(result).toBeDefined();
+            expect(result.records).toEqual(jasmine.any(Array));
+
+            record = result.records[0];
+            
+            expect(record).toBeDefined();
+
+            expect(record.get('key')).toEqual('property');
+            expect(record.get('value')).toBe('some Value.');
+            expect(record.get('value')).not.toBe('some Value.\n');
+        });
+
+        it("should handle CR+LF ('\\r\\n')  as in This \r\n text", function(){
+            var response = {
+                    responseText: "property:some Value.\r\nproperty2:another value\r\n"
+                },
+                result, record;
+
+            result =sut.read(response);
+
+            expect(result).toBeDefined();
+            expect(result.records).toEqual(jasmine.any(Array));
+
+            record = result.records[0];
+            
+            expect(record).toBeDefined();
+
+            expect(record.get('key')).toEqual('property');
+            expect(record.get('value')).toBe('some Value.');
+
+            expect(record.get('value')).not.toBe('some Value.\r\n');
+            expect(record.get('value')).not.toBe('some Value.\r');
+            expect(record.get('value')).not.toBe('some Value.\n');
+        });
+    });
 
 });
