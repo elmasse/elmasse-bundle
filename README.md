@@ -77,7 +77,7 @@ As you can imagine the keys must match json keys structure, so for `panel.html` 
 
 ##Changelog
 
-###master:
+###version: 0.3.2 (master):
 - New Json Reader implemented
 - Added tests for Bundle, reader.Property and reader.Json
 - Draft for 4.1.1/2 
