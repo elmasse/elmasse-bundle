@@ -42,7 +42,6 @@ Now you can choose between `.properties` and `.json` files. You can specify whic
             name: 'AppTest',
             requires: ['Ext.i18n.Bundle'],
 
-            //2
             bundle: {
                 bundle: 'Application',
                 lang: 'en-US',
@@ -77,7 +76,11 @@ As you can imagine the keys must match json keys structure, so for `panel.html` 
 
 ##Changelog
 
-###version: 0.3.2 (master):
+###version: 0.3.3 (master)
+- Working version for ExtJS 4.2.0
+- Fixed issue with Model ids.
+
+###version: 0.3.2 
 - New Json Reader implemented
 - Added tests for Bundle, reader.Property and reader.Json
 - Draft for 4.1.1/2 
