@@ -132,7 +132,7 @@ describe("Ext.i18n.Bundle", function(){
     describe("When loading the bundle", function(){
         var proxy,
             RECS = [{key: 'key', value: 'value'}];
-           
+
         retrieveMockedRecords = function(Model){
             var recs = [],
                 l = RECS.length,

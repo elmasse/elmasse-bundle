@@ -48,7 +48,7 @@ Ext.define('Ext.i18n.Bundle', {
 	config: {
         autoLoad: false,
         fields: ['key', 'value'],
-
+        idProperty: 'key',
 		/**
 		 * @cfg bundle {String} bundle name for properties file. Default to message
 		 */
@@ -66,21 +66,19 @@ Ext.define('Ext.i18n.Bundle', {
          *      YY: Country code (2 characters upercase).
 		 * Optional. Default to browser's language. If it cannot be determined default to en-US.
 		 */
-		
+
 		/**
 		 * @cfg noCache {boolean} whether or not to disable Proxy's cache. Optional. Defaults to true.
 		 */
-		
 	},
 
-	
 	constructor: function(config){
 		config = config || {};
 
 		var me = this,
 			language = me.formatLanguageCode(config.lang || me.guessLanguage()),
 			noCache = (config.noCache !== false),
-			url;
+			url, Model;
 
 		me.language = language;
 		me.bundle = config.bundle || me.bundle;
@@ -91,15 +89,14 @@ Ext.define('Ext.i18n.Bundle', {
 
 		delete config.lang;
 		delete config.noCache;
-		
+
 		Ext.applyIf(config, {
 			proxy:{
 				type: 'ajax',
 				url: url,
 				noCache: noCache,
 				reader: {
-					type: 'i18n.'+ me.format,
-                    idProperty: 'key'
+					type: 'i18n.'+ me.format
 				},
 				//avoid sending limit, start & group params to server
 				getParams: Ext.emptyFn
@@ -108,17 +105,35 @@ Ext.define('Ext.i18n.Bundle', {
 
 		me.callParent([config]);
 
+        Model = me.model;
+
+        if(Model){
+            // An Implicit Model is created when fields from store are used instead a model definition
+            // This has some issues with ids in the model instance:
+            // override idProperty since it is not using idProperty from this reader
+            // override idgen getRecId method since it won't retrieve the idProp
+            Ext.merge(Model.prototype, {
+                idProperty: this.getIdProperty(),
+                idField: new Ext.data.Field(this.getIdProperty()),
+                idgen:{
+                    getRecId : function(rec){
+                        return rec.internalId;
+                    }
+                }
+            });
+        }
+
 		me.on('load', me.onBundleLoad, me);
         me.getProxy().on('exception', this.loadParent, this, {single: true});
 	},
-	
+
 	/**
 	 * @private
 	 */
 	guessLanguage: function(){
 		return (navigator.language || navigator.browserLanguage || navigator.userLanguage || this.defaultLanguage);
 	},
-	
+
 	/**
 	 * @method: getMsg
 	 * Returns the content associated with the bundle key or {bundle key}.undefined if it is not specified.
@@ -132,10 +147,10 @@ Ext.define('Ext.i18n.Bundle', {
             rec = this.getById(key),
             decoded = key + '.undefined',
             args;
-	
+
         if(rec){
             decoded = Ext.util.Format.htmlDecode(rec.get('value'));
-            
+
             if(values){
                 args = [decoded].concat(values);
                 decoded = Ext.String.format.apply(null, args);
@@ -144,7 +159,7 @@ Ext.define('Ext.i18n.Bundle', {
 
         return decoded;
 	},
-	
+
 	/**
 	 * @private
 	 */
@@ -162,7 +177,6 @@ Ext.define('Ext.i18n.Bundle', {
 			this.callParent(arguments);
 		}
 	},
-	
 
     getResourceExtension: function(){
         return this.format === 'property' ? '.properties' : '.json';
@@ -179,7 +193,7 @@ Ext.define('Ext.i18n.Bundle', {
 		url+=this.getResourceExtension();
 		return url;
 	},
-	
+
 	/**
 	 * @private
 	 */
@@ -187,7 +201,7 @@ Ext.define('Ext.i18n.Bundle', {
 		this.getProxy().url = this.buildURL();
 		this.load();
 	},
-	
+
 	/**
 	 * @private
 	 */
@@ -196,11 +210,11 @@ Ext.define('Ext.i18n.Bundle', {
             primary, second;
 		primary = (langCodes[0]) ? langCodes[0].toLowerCase() : '';
 		second = (langCodes[1]) ? langCodes[1].toUpperCase() : '';
-	
+
         return langCodes.length > 1 ? [primary, second].join('-') : primary;
 	}
 
-	
+
 }, function(){
     //initialize bundle before app launch
 	Ext.override(Ext.app.Application, {

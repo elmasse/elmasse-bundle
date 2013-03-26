@@ -2,29 +2,6 @@ Ext.define('Ext.i18n.reader.Property', {
     extend: 'Ext.data.reader.Json',
     alias : 'reader.i18n.property',
 
-    constructor: function(){
-        var me = this,
-            Model;
-
-        me.callParent(arguments);
-        Model = me.model;
-
-        if(Model){
-            // An Implicit Model is created when fields from store are used instead a model definition
-            // This has some issues with ids in the model instance:
-            // override idProperty since it is not using idProperty from this reader
-            // override idgen getRecId method since it won't retrieve the idProp
-            Ext.merge(Model.prototype, {
-                idProperty: this.getIdProperty(),
-                idgen:{
-                    getRecId : function(rec){
-                        return rec.internalId;
-                    }
-                }
-            });
-        }
-    },
-
     getResponseData: function(response){
         return this.readRecords(response);
     },
