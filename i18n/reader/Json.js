@@ -6,7 +6,7 @@ Ext.define('Ext.i18n.reader.Json', {
     extractData: function(root){
        var me = this,
             records = [],
-            Model   = me.model,
+            Model   = me.getModel(),
             length  = root.length,
             keys, key, parts, value,
             convertedValues, node, record, i;
@@ -26,14 +26,14 @@ Ext.define('Ext.i18n.reader.Json', {
 
             node = {key: key, value: value};
 
-            record = new Model(undefined, me.getId(node), node, convertedValues = {});
+            record = new Model(node);
 
             // // If the server did not include an id in the response data, the Model constructor will mark the record as phantom.
             // // We  need to set phantom to false here because records created from a server response using a reader by definition are not phantom records.
             record.phantom = false;
 
             // // Use generated function to extract all fields at once
-            me.convertRecordData(convertedValues, node, record);
+            // me.convertRecordData(convertedValues, node, record);
 
             records.push(record);
         }

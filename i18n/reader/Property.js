@@ -3,7 +3,7 @@ Ext.define('Ext.i18n.reader.Property', {
     alias : 'reader.i18n.property',
 
     getResponseData: function(response){
-        return this.readRecords(response);
+        return response;//this.readRecords(response);
     },
 
 
@@ -19,6 +19,7 @@ Ext.define('Ext.i18n.reader.Property', {
                 };
                 records[i] = record;
         }
+        debugger;
         return records;
     },
 
