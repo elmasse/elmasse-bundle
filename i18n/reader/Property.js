@@ -6,7 +6,6 @@ Ext.define('Ext.i18n.reader.Property', {
         return response;//this.readRecords(response);
     },
 
-
     getData: function(data){
         var records = [], record, kv,
             f = this.readLines(data),
@@ -19,7 +18,6 @@ Ext.define('Ext.i18n.reader.Property', {
                 };
                 records[i] = record;
         }
-        debugger;
         return records;
     },
 
