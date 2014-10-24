@@ -45,7 +45,7 @@ Ext.define('Ext.i18n.Bundle', {
 	//@private
 	defaultLanguage: 'en-US',
 
-    linkedRegEx: /(?:^|\s)(@\S{1,})/g,
+    linkedRegEx: /(?:^|\s)(@\S{1,})/,
 
 	config: {
         autoLoad: false,
@@ -177,14 +177,16 @@ Ext.define('Ext.i18n.Bundle', {
 
     parseLinked: function (value) {
         var me = this,
-            match = me.linkedRegEx.exec(value),
+            match = value ? value.match(me.linkedRegEx, "g") : [],
             mapped = [];
 
         
         if (match) {
             mapped = Ext.Array.map(match, function (matched){
-                var key = matched.substr(1);
-                return {key: matched, value: me.getMsg(key)};
+                var key = matched.substr(1),
+                    rec = me.getById(key);
+
+                return {key: matched, value: rec ? me.getMsg(key) : null};
             });
         }
 

@@ -11,9 +11,9 @@ Ext.application({
 		bundle: 'Application',
 		lang: 'en-US',
 		path: 'resources',
-		noCache: true
+		noCache: true,
         // try enabling linked values
-        // enableLinkedValues: true
+        enableLinkedValues: true
         // try adding this to read from json bundles!
         // ,format: 'json'
 	},
