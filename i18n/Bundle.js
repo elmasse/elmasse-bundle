@@ -45,6 +45,8 @@ Ext.define('Ext.i18n.Bundle', {
 	//@private
 	defaultLanguage: 'en-US',
 
+    linkedRegEx: /(?:^|\s)(@\S{1,})/g,
+
 	config: {
         autoLoad: false,
         fields: ['key', 'value'],
@@ -58,7 +60,13 @@ Ext.define('Ext.i18n.Bundle', {
 		/**
 		 * @cfg path {String} URI to properties files. Default to resources
 		 */
-		path: 'resources'
+		path: 'resources',
+
+        /**
+         * @cfg enableLinkedValues {bool} set to true to follow @{keys} in properties to be replaced
+         * with a linked value
+         */
+        enableLinkedValues: false
 
 		/**
 		 * @cfg lang {String} Language in the form xx-YY where:
@@ -146,10 +154,17 @@ Ext.define('Ext.i18n.Bundle', {
         var values = [].splice.call(arguments, 1),
             rec = this.getById(key),
             decoded = key + '.undefined',
-            args;
+            enabledLinked = this.enableLinkedValues,
+            value, args;
 
         if(rec){
-            decoded = Ext.util.Format.htmlDecode(rec.get('value'));
+            value = rec.get('value');
+
+            if (enabledLinked) {
+                value = this.parseLinked(value);
+            }
+
+            decoded = Ext.util.Format.htmlDecode(value);
 
             if(values){
                 args = [decoded].concat(values);
@@ -159,6 +174,29 @@ Ext.define('Ext.i18n.Bundle', {
 
         return decoded;
 	},
+
+    parseLinked: function (value) {
+        var me = this,
+            match = me.linkedRegEx.exec(value),
+            mapped = [];
+
+        
+        if (match) {
+            mapped = Ext.Array.map(match, function (matched){
+                var key = matched.substr(1);
+                return {key: matched, value: me.getMsg(key)};
+            });
+        }
+
+        Ext.Array.each(mapped, function(item){
+            if (item.value){
+               value = value.replace(item.key, item.value);
+            }
+        });
+
+        return value;
+    },
+
 
 	/**
 	 * @private

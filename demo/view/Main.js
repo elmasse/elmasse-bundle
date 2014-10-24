@@ -22,6 +22,9 @@ Ext.define('AppTest.view.Main', {
                         }
                     ]
                 }
+            },{
+                height: 200,
+                html: AppTest.getApplication().bundle.getMsg('panel.linked')
             }
         ];
 
