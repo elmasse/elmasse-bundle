@@ -34,7 +34,7 @@
 		});
 
 
-##NEW! Using json files as bundles
+##Using json files as bundles
 Now you can choose between `.properties` and `.json` files. You can specify which one to use by using the `format` parameter in bundle configuration:
 
 
@@ -72,7 +72,30 @@ As you can imagine the keys must match json keys structure, so for `panel.html` 
             }
         }
 
+##Linked Values in prorperties (New)
+Version 0.3.4 introduces a new attribute in bundle to enable linked values in properties definitions: `enableLinkedValues`. Making this to `true` allows properties to be defined as linked values. A value is linked by specifiying a key right after an `@` symbol. If the key is not defined, then it is not replaced.
 
+>bundle definition:
+
+```
+    bundle: {
+        bundle: 'Application',
+        lang: 'en-US',
+        path: 'resources',
+        noCache: true,
+        enableLinkedValues: true
+    }
+
+```
+>Application_en-US.properties
+
+```
+
+property.key.one=A single property
+property.linked=@property.key.one
+
+
+```
 
 ##Changelog
 
