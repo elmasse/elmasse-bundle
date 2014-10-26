@@ -1,22 +1,22 @@
 Ext.application({
     requires: ['Ext.i18n.Bundle'],
 
-	name: 'AppTest',
+    name: 'AppTest',
     appFolder: 'demo',
 
     views: ['Main'],
 
     //define bundle properties
-	bundle: {
-		bundle: 'Application',
-		lang: 'en-US',
-		path: 'resources',
-		noCache: true,
+    bundle: {
+        bundle: 'Application',
+        lang: 'en-US',
+        path: 'resources',
+        noCache: true,
         // try enabling linked values
         enableLinkedValues: true
         // try adding this to read from json bundles!
         // ,format: 'json'
-	},
+    },
 
     launch: function(){
         Ext.create('AppTest.view.Main', {
