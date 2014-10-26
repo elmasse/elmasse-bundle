@@ -99,7 +99,13 @@ property.linked=@property.key.one
 
 ##Changelog
 
-###version: 0.3.3 (master)
+###version: 0.3.4 (master)
+- Added Linked Values functionality. See #17.
+- Fixed issues with Jasmine tests
+- Working version for latest ExtJS 4.2.x
+
+
+###version: 0.3.3
 - Working version for ExtJS 4.2.0
 - Fixed issue with Model ids.
 
