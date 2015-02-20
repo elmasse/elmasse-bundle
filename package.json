@@ -1,0 +1,20 @@
+{
+  "name": "elmasse-bundle",
+  "format": "1",
+  "version": "1.0.0",
+  "creator": "elmasse",
+  "summary": "Bundle implementation for ExtJS",
+  "detailedDescription": "Use bundle files (.properties) or json to get internationalised messages",
+  "type": "code",
+  "signatures": [
+    {
+      "name": "elmasse",
+      "uuid": "a8fd4848-a33b-4403-96cd-d2b3c0c613ce",
+      "created": "2015-02-17T19:51:33Z",
+      "algorithm": "SHA1withRSA",
+      "nonce": "I/VNjt/ZP64\u003d",
+      "signature": "MVouF9xw80dUrJKlq8F+yneFLu2vbY4i5iLxF1jGxcsIPawZ/BuMdFF5Romp7GkfSn/3mLJtPxK8exUf9otvy1XdvTWke00smbQDkmLQf3y7gjuSHDToF90vV382Z0HxOXnO4p6u5Hc1fAvNvRWxFSH83YfC9Wr5DkWN+9RVErZc6MUKCpMogECN4ZKwgeleuhFbTPyMFa8oOeovbfgMCptqp3qnG4nna+hnZtutERAMn2I5Ux+BSMh4aXWtlM4WQmR4IWtox6Uq7qDHo3aqvs9VWv3xniAgw/GeNQVK5TVMpcofgT35T2FcfkNamATEBlWv0SFOeqV9XR44RridJg\u003d\u003d"
+    }
+  ],
+  "output": "${package.dir}/build"
+}
