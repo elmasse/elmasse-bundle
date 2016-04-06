@@ -5,5 +5,5 @@
  * to the most recently built CSS file for the application to allow index.html
  * in the development directory to load properly (i.e., "dev mode").
  */
-@import '../../../../../build/development/demo1/classic/resources/demo1-all.css';
+@import '../../../../build/production/demo1/modern/resources/demo1-all.css';
 

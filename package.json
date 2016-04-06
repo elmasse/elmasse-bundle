@@ -154,7 +154,10 @@
          *      | application     |
          *      +-----------------+
          */
-        "etc": "${package.dir}/sass/etc/all.scss,${package.dir}/${toolkit.name}/sass/etc/all.scss",
+        "etc": [
+            "${package.dir}/sass/etc/all.scss",
+            "${package.dir}/${toolkit.name}/sass/etc/all.scss"
+         ],
 
         /**
          * Comma-separated list of folders containing Sass variable definitions
@@ -176,7 +179,10 @@
          * The "sass/var/all.scss" file is always included at the start of the var
          * block before any files associated with JavaScript classes.
          */
-        "var": "${package.dir}/sass/var,${package.dir}/${toolkit.name}/sass/var",
+        "var": [
+            "${package.dir}/sass/var",
+            "${package.dir}/${toolkit.name}/sass/var"
+        ],
 
         /**
          * Comma-separated list of folders containing Sass rule files.
@@ -194,14 +200,20 @@
          *      | application     |
          *      +-----------------+
          */
-        "src": "${package.dir}/sass/src,${package.dir}/${toolkit.name}/sass/src"
+        "src": [
+            "${package.dir}/sass/src",
+            "${package.dir}/${toolkit.name}/sass/src"
+        ]
     },
 
     /**
      * This is the comma-separated list of folders where classes reside. These
      * classes must be explicitly required to be included in the build.
      */
-    "classpath": "${package.dir}/src,${package.dir}/${toolkit.name}/src",
+    "classpath": [
+        "${package.dir}/src",
+        "${package.dir}/${toolkit.name}/src"
+    ],
 
     /**
      * Comma-separated string with the paths of directories or files to search. Any classes
@@ -210,7 +222,10 @@
      * that override will in fact only be included in the build if the target class specified
      * in the "override" property is also included.
      */
-    "overrides": "${package.dir}/overrides,${package.dir}/${toolkit.name}/overrides",
+    "overrides": [
+        "${package.dir}/overrides",
+        "${package.dir}/${toolkit.name}/overrides"
+    ],
 
     "example": {
         /**
@@ -256,7 +271,7 @@
      *
      * Can also be specified as an object:
      *
-     *      "requires": {
+     *      "requires": {ss
      *          "foo": "2.2",
      *          "bar": {
      *              "minVersion": "1.1",
@@ -264,5 +279,14 @@
      *          }
      *      }
      */
-    "requires": []
+    "requires": [],
+    
+    "builds": {
+        "classic": {
+            "toolkit": "classic"
+        },
+        "modern": {
+            "toolkit": "modern"
+        } 
+    }
 }
