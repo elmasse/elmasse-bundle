@@ -1,6 +1,9 @@
 # elmasse-bundle
 
-`Ext.i18n.Bundle` as a Sencha Cmd Package.
+`elmasse.i18n.Bundle` as a Sencha Cmd Package.
+
+## Note
+Since **version 1.1.0** namespace has been changed from `Ext.i18n` to `elmasse.i18n` to avoid namespace issues with ExtJS reserved package names.
 
 ## Install
 The `latest` stable version is available thru a Sencha Cmd repository located at [elmasse.github.io/cmd/pkgs](http://elmasse.github.io/cmd/pkgs)
@@ -56,7 +59,7 @@ You can see a working example under the `examples` folder.
 
         Ext.application({
             name: 'AppTest',
-            requires: ['Ext.i18n.Bundle'], //1
+            requires: ['elmasse.i18n.Bundle'], //1
 
             //2
             bundle: {
@@ -87,7 +90,7 @@ Now you can choose between `.properties` and `.json` files. You can specify whic
 
         Ext.application({
             name: 'AppTest',
-            requires: ['Ext.i18n.Bundle'],
+            requires: ['elmasse.i18n.Bundle'],
 
             bundle: {
                 bundle: 'Application',
@@ -127,7 +130,7 @@ We can use the lazy definition so the bundle keys are defined into the views. Ju
 
         Ext.application({
             name: 'AppTest',
-            requires: ['Ext.i18n.Bundle'],
+            requires: ['elmasse.i18n.Bundle'],
 
             bundle: {
                 bundle: 'Application',
@@ -155,9 +158,14 @@ We can use the lazy definition so the bundle keys are defined into the views. Ju
 
 ##Changelog
 
-###version: 1.0.0 (master)
+###version 1.1.0 (master)
+- Changed namespace to `elmasse.i18n`
+- Working version for ExtJS 6.x
+- Examples for using ViewControllers and ViewModels to change bundles on the fly.
+
+###version: 1.0.0
 - Sencha Cmd Package
-- Working version for Ext5
+- Working version for ExtJS 5.x
 
 ###version: 0.3.3
 - Working version for ExtJS 4.2.0
