@@ -1,5 +1,10 @@
 <project name="x-slice-impl">
 
+    <target name="-load-sass-page"
+            depends="-generate-slicer-bootstrap,
+                     -generate-slicer-manifest">
+    </target>
+
     <!--
     Uses the compiler to generate a special theme-only scss file containing
     rules for all framework / package / app components.  This is then used
@@ -26,8 +31,9 @@
                     +vars
                     +rules
                     -variable=$image-search-path:'${image.search.path}'
-                    -variable=$theme-name: '${app.theme}' !default
+                    -variable=$theme-name: '${theme.name}' !default
                     -output=${package.example.scss.tmp}
+                    -forward=${package.sass.dynamic}
                 and
                 restore
                     package-${package.name}-all
@@ -53,21 +59,56 @@
     Compiles the scss file for the theme slicer page
     -->
     <target name="-compass-compile-slicer-css" depends="-compile-slicer-sass">
-        <x-compass-compile
-                dir="${package.example.build.dir}"
-                trace="${compass.compile.trace}"
-                boring="${compass.compile.boring}"
-                force="${compass.compile.force}"
-                sassdir="${package.example.build.dir}"
-                cssdir="${package.example.build.dir}"
-                config="${package.example.compass.config}"/>
+        <if>
+            <not>
+                <x-is-true value="${package.sass.fashion}"/>
+            </not>
+            <then>
+                <x-compass-compile
+                        dir="${package.example.build.dir}"
+                        trace="${compass.compile.trace}"
+                        boring="${compass.compile.boring}"
+                        force="${compass.compile.force}"
+                        sassdir="${package.example.build.dir}"
+                        cssdir="${package.example.build.dir}"
+                        config="${package.example.compass.config}"/>
+            </then>
+        </if>
     </target>
 
+    <!--
+    Compiles the scss file for the theme slicer page
+    -->
+    <target name="-fashion-compile-slicer-css" depends="-compile-slicer-sass">
+        <if>
+            <x-is-true value="${package.sass.fashion}"/>
+            <then>
+                <if>
+                    <x-is-true value="${package.sass.rhino}"/>
+                    <then>
+                        <x-fashion-compile file="${package.example.build.dir}"
+                                           tofile="${package.example.build.dir}"/>
+                    </then>
+                    <else>
+                        <x-sencha-command>
+                            fashion
+                            -compress=false
+                            ${package.example.build.dir}
+                            ${package.example.build.dir}
+                        </x-sencha-command>
+                    </else>
+                </if>
+            </then>
+        </if>
+    </target>
 
     <target name="-generate-slicer-manifest" depends="-compass-compile-slicer-css" if="framework.isV5">
+        <property name="remove.slicer.css.bootstrap.entries" value="false"/>
+
         <x-compile refid="${compiler.ref.id}">
             <![CDATA[
                 slicer-manifest
+                    -removeBootstrapCssEntries=${remove.slicer.css.bootstrap.entries}
                     -cssFile=${package.example.css}
                     -basePath=${bootstrap.base.path}
                     -out=${bootstrap.example.json}
@@ -137,15 +178,15 @@ Ext.Boot.loadSync([
         <echo>Capture theme image to ${build.dir}/theme-capture.png</echo>
         <x-sencha-command dir="${package.dir}">
             <![CDATA[
-            theme
-                capture
-                    -page=${package.example.theme.html}
-                    -image=${build.capture.png}
-                    -manifest=${build.capture.json}
-            ]]>
+                    theme
+                        capture
+                            -page=${package.example.theme.html}
+                            -image=${build.capture.png}
+                            -manifest=${build.capture.json}
+                    ]]>
         </x-sencha-command>
     </target>
-    
+
     <target name="-slice-theme-images" depends="-capture-theme-image">
         <echo>Slicing theme images to ${build.resources.dir}</echo>
         <x-sencha-command dir="${package.dir}">
@@ -159,10 +200,32 @@ Ext.Boot.loadSync([
             ]]>
         </x-sencha-command>
     </target>
+
+    <target name="-slice-sass-page"
+            depends="-load-sass-page,
+                     -update-slicer-css,
+                     -fashion-compile-slicer-css,
+                     -slice-theme-images"/>
  
+    <target name="-fashion-slice-images" depends="-slice-sass-page"></target>
+    <target name="-compass-slice-images" depends="-slice-theme-images"></target>
+    
+    
+    <target name="-slice-package-images">
+        <if>
+            <x-is-true value="${package.sass.fashion}"/>
+            <then>
+                <x-ant-call target="-fashion-slice-images"/>
+            </then>
+            <else>
+                <x-ant-call target="-compass-slice-images"/>
+            </else>
+        </if>
+    </target>
+    
     <target name="-before-slice"/>
     <target name="-after-slice"/>
     <target name="-slice" 
-            depends="-slice-theme-images"/>
+            depends="-slice-package-images"/>
 
 </project>
