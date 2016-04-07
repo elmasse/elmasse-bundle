@@ -17,7 +17,7 @@ sencha repo add elmasse http://elmasse.github.io/cmd/pkgs
 ```
 
 ### Using the package
-Once the repository is added to the list, you can declare your dependency on your Sencha Cmd project. Locate the `app.json` file and the `elmasse-bundle` package to the `requires` list:
+Once the repository is added to the list, you can declare your dependency on your Sencha Cmd project. Locate the `app.json` file and add `elmasse-bundle` package to the `requires` list:
 
 ```json
 
@@ -40,8 +40,8 @@ sencha app refresh
 You can as well use the latest version from this repository:
 
 - Clone this repo
-- Rename the folder to `elmasse-bundle`
-- Copy the folder under `packages` in your app
+- ~~Rename the folder to `elmasse-bundle`~~
+- Copy the folder under `packages/local` in your app
 - Modify the `app.json` and include the `elmasse-bundle` into the `requires` list.
 - Run `sencha app refresh`
 
@@ -55,7 +55,8 @@ You can see a working example under the `examples` folder.
 - First add Bundle to requires on Ext.application as shown in (1)
 - Declare the bundle configuration (2)
 - Call bundle.getMsg with your bundle key (3). `bundle` is available from the application instance which is available under the `appName`.getApplication() method. 
-    
+
+```js    
 
         Ext.application({
             name: 'AppTest',
@@ -82,12 +83,12 @@ You can see a working example under the `examples` folder.
                 });
             }   
         });
-
+```
 
 ### Using json files as bundles
 Now you can choose between `.properties` and `.json` files. You can specify which one to use by using the `format` parameter in bundle configuration:
 
-
+```js
         Ext.application({
             name: 'AppTest',
             requires: ['elmasse.i18n.Bundle'],
@@ -113,20 +114,22 @@ Now you can choose between `.properties` and `.json` files. You can specify whic
                 });
             }   
         });
+```
 
 As you can imagine the keys must match json keys structure, so for `panel.html` you must have a json response like this:
 
+```js
         {
             "panel":{
                 "html" : "Hello from JSON file!"
             }
         }
-
+```
 
 ##Lazy Definition
 We can use the lazy definition so the bundle keys are defined into the views. Just use a plain object with the **type:** `bundle` and a **key**.
 
-
+```js
 
         Ext.application({
             name: 'AppTest',
@@ -154,7 +157,7 @@ We can use the lazy definition so the bundle keys are defined into the views. Ju
             }   
         });
 
-
+```
 
 ##Changelog
 

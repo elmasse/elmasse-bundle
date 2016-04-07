@@ -1,0 +1,16 @@
+{
+    "framework": "jasmine",
+    "libs": [],
+    "coverageFilters": [],
+    "scenarios": [
+        {
+            "libs": [],
+            "coverageFilters": [],
+            "profile": "classic",
+            "framework": "jasmine",
+            "directory": "unit",
+            "name": "Unit Tests",
+            "globals": "elmasse"
+        }
+    ]
+}
