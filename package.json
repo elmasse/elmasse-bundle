@@ -57,7 +57,7 @@
         ]
     },
     "framework": "ext",
-    "requires": [],
+
     "builds": {
         "classic": {
             "toolkit": "classic"
@@ -67,6 +67,7 @@
         }
     },
     "development": {
+        "requires": ["ux"],
         "tests": {
             "path": "test/project.json"
         }

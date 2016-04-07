@@ -4,13 +4,19 @@
     "coverageFilters": [],
     "scenarios": [
         {
-            "libs": [],
+            "libs": [
+                {
+                    "disabled": false,
+                    "path": "lib/jasmine-ajax.js"
+                }
+            ],
             "coverageFilters": [],
-            "profile": "classic",
+            "profile": "classic-test",
             "framework": "jasmine",
             "directory": "unit",
             "name": "Unit Tests",
-            "globals": "elmasse"
+            "globals": "XMLHttpRequest"
         }
-    ]
+    ],
+    "globals": "elmasse"
 }
