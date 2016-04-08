@@ -67,7 +67,6 @@
         }
     },
     "development": {
-        "requires": ["ux"],
         "tests": {
             "path": "test/project.json"
         }
