@@ -10,7 +10,7 @@ Ext.define('elmasse.i18n.reader.Json', {
             Model   = me.getModel(),
             length  = root.length,
             keys, key, parts, value,
-            convertedValues, node, record, i;
+            convertedValues, node, record, i, j;
 
         if (!root.length && Ext.isObject(root)) {
             keys = me.getKeys(root);

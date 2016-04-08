@@ -57,7 +57,7 @@
         ]
     },
     "framework": "ext",
-    "requires": [],
+
     "builds": {
         "classic": {
             "toolkit": "classic"

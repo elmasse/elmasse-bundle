@@ -115,9 +115,10 @@ Ext.define('elmasse.i18n.Bundle', {
                 type: 'i18n.'+ format
             },
             //avoid sending limit, start & group params to server
-            groupParam: '',
-            limitParam: '',
-            startParam: '',
+            groupParam: false,
+            limitParam: false,
+            startParam: false,
+            pageParam: false,
             listeners: {
                 exception: me.tryLoadParent,
                 scope: me
@@ -142,7 +143,7 @@ Ext.define('elmasse.i18n.Bundle', {
             rec = me.getById(key),
             decoded = key + '.undefined',
             enabledLinked = me.getEnableLinkedValues(),
-            args;
+            args, value;
 
         if (rec) {
             value = rec.get('value');
