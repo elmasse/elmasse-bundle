@@ -268,5 +268,65 @@ describe("Bundle", function() {
         });
 
     });
+    
+    describe("Getting messages", function() {
+        var bundle,
+            params = {
+                language: 'en-US',
+                path: 'resources',
+                bundle: 'Application',
+                noCache: false,
+                asynchronousLoad: false // this is needed to avoid issues with ajax mocks
+            };
+            
+        beforeEach(function(done) {
+            bundle = Ext.create('elmasse.i18n.Bundle', params);
+
+            jasmine.Ajax.install();
+            
+            jasmine.Ajax
+                .stubRequest('resources/Application_en-US.properties')
+                .andReturn({
+                    responseHeaders: [{name: 'content-type', value: 'text/plain'}],
+                    responseText: '# this is a comment\n' +
+                        'key=value\n' +
+                        'other.key this is @linked\n' +
+                        'linked enabled\n' + 
+                        'not.found this @is.not.found\n'
+                        
+                });
+                
+
+            
+            bundle.on('loaded', function() {
+                done();
+            });
+            
+          bundle.load(); 
+        });
+        
+        afterEach(function() {
+            jasmine.Ajax.uninstall();
+            bundle.destroy();
+        });
+        
+        it("should read all keys", function() {
+            expect(bundle.getCount()).toEqual(4);
+        });
+
+        it("should not follow linked values by default", function() {
+           expect(bundle.getMsg('other.key')).toEqual('this is @linked');
+        });
+        
+        it("should follow linked values if enabled", function() {
+           bundle.setEnableLinkedValues(true);
+           expect(bundle.getMsg('other.key')).toEqual('this is enabled');
+        });
+        
+        it("should not replace a linked value if not present", function() {
+           bundle.setEnableLinkedValues(true);
+           expect(bundle.getMsg('not.found')).toEqual('this @is.not.found');
+        });        
+    });
 
 });
