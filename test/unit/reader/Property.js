@@ -1,7 +1,7 @@
-describe("Property", function() {
+describe("Property Reader", function() {
     var sut;
     
-    beforeEach(function(){
+    beforeEach(function() {
         var model =  Ext.define(null, {
             extend: 'Ext.data.Model',
             fields: ['key', 'value']
@@ -12,8 +12,8 @@ describe("Property", function() {
         });
     });
 
-    describe("should read key value pairs", function(){
-        it("separated by ':'", function(){
+    describe("Key/Value pairs", function() {
+        it("should read key value pairs separated by ':'", function() {
             var response = {
                     responseText: "property:someValue"
                 },
@@ -32,7 +32,7 @@ describe("Property", function() {
             expect(record.get('value')).toEqual('someValue');
         });
 
-        it("separated by '='", function(){
+        it("should read key value pairs separated by '='", function() {
             var response = {
                     responseText: "property=someValue"
                 },
@@ -51,7 +51,7 @@ describe("Property", function() {
             expect(record.get('value')).toEqual('someValue');
         });
 
-        it("separated by ' '", function(){
+        it("should read key value pairs separated by ' '", function() {
             var response = {
                     responseText: "property someValue"
                 },
@@ -71,9 +71,10 @@ describe("Property", function() {
         });
 
     });
+    
+    describe("Values", function() {
 
-    describe("should read values", function(){
-        it("with spaces", function(){
+        it("should read values with spaces", function() {
             var response = {
                     responseText: "property:some Value here"
                 },
@@ -92,7 +93,7 @@ describe("Property", function() {
             expect(record.get('value')).toEqual('some Value here');
         });
 
-        it("with multiline \\ separator", function(){
+        it("should read values with multiline \\ separator", function() {
             var response = {
                     responseText: "property:some Value \\\nthat follows in here"
                 },
@@ -111,7 +112,7 @@ describe("Property", function() {
             expect(record.get('value')).toEqual('some Value that follows in here');
         });
 
-         it("that starts with ':' if separator is ' ' then ':' should be part of the value", function(){
+         it("should read values that starts with ':' if separator is ' ' then ':' should be part of the value", function() {
             var response = {
                     responseText: "property :<-these are part of the message "
                 },
@@ -131,8 +132,8 @@ describe("Property", function() {
         });
     });
 
-    describe("should exclude comments", function(){
-        it("should exclude comment lines started with '#'", function(){
+    describe("Comments", function() {
+        it("should exclude comment lines started with '#'", function() {
             var response = {
                     responseText: "#property:some Value \nproperty:another value"
                 },
@@ -153,7 +154,7 @@ describe("Property", function() {
             expect(record.get('value')).toEqual('another value');
         });
 
-        it("should exclude comment lines with '#' as first non blank character", function(){
+        it("should exclude comment lines with '#' as first non blank character", function() {
             var response = {
                     responseText: "\t   #property:some Value \nproperty:another value"
                 },
@@ -174,7 +175,7 @@ describe("Property", function() {
             expect(record.get('value')).toEqual('another value');
         });
 
-        it("should exclude comment lines started with '!'", function(){
+        it("should exclude comment lines started with '!'", function() {
             var response = {
                     responseText: "!property:some Value \nproperty:another value"
                 },
@@ -196,9 +197,9 @@ describe("Property", function() {
         });
     });
 
-    describe("should remove EOL markers", function(){
+    describe("EOL markers", function() {
       
-        it("should handle CR ('\\n') as in This \n text", function(){
+        it("should handle CR ('\\n') as in This \n text", function() {
             var response = {
                     responseText: "property:some Value.\nproperty2:another value\n"
                 },
@@ -218,7 +219,7 @@ describe("Property", function() {
             expect(record.get('value')).not.toBe('some Value.\n');
         });
 
-        it("should handle CR+LF ('\\r\\n')  as in This \r\n text", function(){
+        it("should handle CR+LF ('\\r\\n')  as in This \r\n text", function() {
             var response = {
                     responseText: "property:some Value.\r\nproperty2:another value\r\n"
                 },
