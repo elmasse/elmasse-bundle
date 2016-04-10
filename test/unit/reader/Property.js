@@ -199,7 +199,7 @@ describe("Property Reader", function() {
 
     describe("EOL markers", function() {
       
-        it("should handle CR ('\\n') as in This \n text", function() {
+        it("should handle CR ('\\n')", function() {
             var response = {
                     responseText: "property:some Value.\nproperty2:another value\n"
                 },
@@ -219,7 +219,7 @@ describe("Property Reader", function() {
             expect(record.get('value')).not.toBe('some Value.\n');
         });
 
-        it("should handle CR+LF ('\\r\\n')  as in This \r\n text", function() {
+        it("should handle CR+LF ('\\r\\n')", function() {
             var response = {
                     responseText: "property:some Value.\r\nproperty2:another value\r\n"
                 },
