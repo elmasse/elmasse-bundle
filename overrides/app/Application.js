@@ -3,8 +3,7 @@ Ext.define('elmasse.overrides.app.Applicaton', {
 
     onBeforeLaunch: function() {
         var me = this,
-            overridden = this.onBeforeLaunch.$previous,
-            ns;
+            overridden = this.onBeforeLaunch.$previous;
 
         if(me.bundle){
             //configure the bundle instance and defer launch until bundle is loaded.
