@@ -11,7 +11,7 @@
                 }
             ],
             "coverageFilters": [],
-            "profile": "classic-test",
+            "profile": "classic",
             "framework": "jasmine",
             "directory": "unit",
             "name": "Unit Tests",
