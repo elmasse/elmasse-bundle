@@ -154,7 +154,7 @@ Ext.define('elmasse.i18n.Bundle', {
 
             decoded = Ext.util.Format.htmlDecode(value);
 
-            if(values){
+            if(values && values.length){
                 args = [decoded].concat(values);
                 decoded = Ext.String.format.apply(null, args);
             }

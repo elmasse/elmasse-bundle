@@ -292,7 +292,8 @@ describe("Bundle", function() {
                         'key=value\n' +
                         'other.key this is @linked\n' +
                         'linked enabled\n' + 
-                        'not.found this @is.not.found\n'
+                        'not.found this @is.not.found\n' +
+                        'formatted this contains a placeholder {0}'
                         
                 });
                 
@@ -311,7 +312,7 @@ describe("Bundle", function() {
         });
         
         it("should read all keys", function() {
-            expect(bundle.getCount()).toEqual(4);
+            expect(bundle.getCount()).toEqual(5);
         });
 
         it("should not follow linked values by default", function() {
@@ -326,7 +327,14 @@ describe("Bundle", function() {
         it("should not replace a linked value if not present", function() {
            bundle.setEnableLinkedValues(true);
            expect(bundle.getMsg('not.found')).toEqual('this @is.not.found');
-        });        
+        });
+        
+        it("should replace a formatted value if values passed", function() {
+           expect(bundle.getMsg('formatted', ['text'])).toEqual('this contains a placeholder text');
+        });
+        it("should not replace a formatted value if no values passed", function() {
+           expect(bundle.getMsg('formatted')).toEqual('this contains a placeholder {0}');
+        });           
     });
 
 });
