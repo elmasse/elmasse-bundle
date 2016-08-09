@@ -66,6 +66,9 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
         _tags = (Ext.platformTags = {}),
 
     //<debug>
+        // All calls to _debug are commented out to speed up old browsers a bit;
+        // yes that makes a difference because the cost of concatenating strings
+        // and passing them into _debug() adds up pretty quickly.
         _debug = function (message) {
             //console.log(message);
         },
@@ -534,9 +537,27 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
 
             init: function () {
                 var scriptEls = doc.getElementsByTagName('script'),
+                    script = scriptEls[0],
                     len = scriptEls.length,
                     re = /\/ext(\-[a-z\-]+)?\.js$/,
-                    entry, script, src, state, baseUrl, key, n, origin;
+                    entry, src, state, baseUrl, key, n, origin;
+
+                // No check for script definedness because there always should be at least one
+                Boot.hasReadyState = ("readyState" in script);
+                Boot.hasAsync = ("async" in script);
+                Boot.hasDefer = ("defer" in script);
+                Boot.hasOnLoad = ("onload" in script);
+                
+                // Feature detecting IE
+                Boot.isIE8 = Boot.hasReadyState && !Boot.hasAsync && Boot.hasDefer && !Boot.hasOnLoad;
+                Boot.isIE9 = Boot.hasReadyState && !Boot.hasAsync && Boot.hasDefer && Boot.hasOnLoad;
+                Boot.isIE10p = Boot.hasReadyState && Boot.hasAsync && Boot.hasDefer && Boot.hasOnLoad;
+
+                Boot.isIE10 = (new Function('/*@cc_on return @_jscript_version @*/')()) === 10;
+                Boot.isIE10m = Boot.isIE10 || Boot.isIE9 || Boot.isIE8;
+                
+                // IE11 does not support conditional compilation so we detect it by exclusion
+                Boot.isIE11 = Boot.isIE10p && !Boot.isIE10;
 
                 // Since we are loading after other scripts, and we needed to gather them
                 // anyway, we track them in _scripts so we don't have to ask for them all
@@ -549,17 +570,13 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
                     state = script.readyState || null;
 
                     // If we find a script file called "ext-*.js", then the base path is that file's base path.
-                    if (!baseUrl) {
-                        if (re.test(src)) {
-                            Boot.hasReadyState = ("readyState" in script);
-                            Boot.hasAsync = ("async" in script) || !Boot.hasReadyState;
-                            baseUrl = src;
-                        }
+                    if (!baseUrl && re.test(src)) {
+                        baseUrl = src;
                     }
 
                     if (!Boot.scripts[key = Boot.canonicalUrl(src)]) {
                         //<debug>
-                        _debug("creating entry " + key + " in Boot.init");
+//                         _debug("creating entry " + key + " in Boot.init");
                         //</debug>
                         entry = new Entry({
                             key: key,
@@ -575,8 +592,6 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
                 if (!baseUrl) {
                     script = scriptEls[scriptEls.length - 1];
                     baseUrl = script.src;
-                    Boot.hasReadyState = ('readyState' in script);
-                    Boot.hasAsync = ("async" in script) || !Boot.hasReadyState;
                 }
 
                 Boot.baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf('/') + 1);
@@ -606,6 +621,12 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
              * @private
              */
             canonicalUrl: function (url) {
+                // *WARNING WARNING WARNING*
+                // This method yields the most correct result we can get but it is EXPENSIVE!
+                // In ALL browsers! When called multiple times in a sequence, as if when
+                // we resolve dependencies for entries, it will cause garbage collection events
+                // and overall painful slowness. This is why we try to avoid it as much as we can.
+                // 
                 // @TODO - see if we need this fallback logic
                 // http://stackoverflow.com/questions/470832/getting-an-absolute-url-from-a-relative-one-ie6-issue
                 resolverEl.href = url;
@@ -668,12 +689,22 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
                 return Boot.scripts[key] = new Entry(config);
             },
 
-            getEntry: function (url, cfg) {
-                var key = Boot.canonicalUrl(url),
-                    entry = Boot.scripts[key];
+            getEntry: function (url, cfg, canonicalPath) {
+                var key, entry;
+                
+                // Canonicalizing URLs via anchor element href yields the most correct result
+                // but is *extremely* resource heavy so we need to avoid it whenever possible
+                key = canonicalPath ? url : Boot.canonicalUrl(url);
+                entry = Boot.scripts[key];
+                
                 if (!entry) {
                     entry = Boot.create(url, key, cfg);
+                    
+                    if (canonicalPath) {
+                        entry.canonicalPath = true;
+                    }
                 }
+                
                 return entry;
             },
 
@@ -693,7 +724,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
 
             load: function (request) {
                 //<debug>
-                _debug("Boot.load called");
+//                 _debug("Boot.load called");
                 //</debug>
                 var request = new Request(request);
 
@@ -705,7 +736,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
                 // queue this new request to be fired  when the current request completes.
                 if (Boot.currentRequest) {
                     //<debug>
-                    _debug("current active request, suspending this request");
+//                     _debug("current active request, suspending this request");
                     //</debug>
                     // trigger assignment of entries now to ensure that overlapping
                     // entries with currently running requests will synchronize state
@@ -721,7 +752,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
 
             loadSync: function (request) {
                 //<debug>
-                _debug("Boot.loadSync called");
+//                 _debug("Boot.loadSync called");
                 //</debug>
                 var request = new Request(request);
 
@@ -752,7 +783,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
                         next = Boot.suspendedQueue.shift();
                         if(!next.done) {
                             //<debug>
-                            _debug("resuming suspended request");
+//                             _debug("resuming suspended request");
                             //</debug>
                             Boot.load(next);
                             break;
@@ -785,9 +816,23 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
 
             /**
              * this is a helper function used by Ext.Loader to flush out
-             * 'uses' arrays for classes
+             * 'uses' arrays for classes in some Ext versions
              */
             getPathsFromIndexes: function (indexMap, loadOrder) {
+                // In older versions indexMap was an object instead of a sparse array
+                if (!('length' in indexMap)) {
+                    var indexArray = [],
+                        index;
+                    
+                    for (index in indexMap) {
+                        if (!isNaN(+index)) {
+                            indexArray[+index] = indexMap[index];
+                        }
+                    }
+                    
+                    indexMap = indexArray;
+                }
+                
                 return Request.prototype.getPathsFromIndexes(indexMap, loadOrder);
             },
 
@@ -814,6 +859,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
                             if (complete) {
                                 complete.call(scope, result);
                             }
+                            xhr.onreadystatechange = emptyFn;
                             xhr = null;
                         }
                     };
@@ -824,7 +870,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
 
                 try {
                     //<debug>
-                    _debug("fetching " + url + " " + (async ? "async" : "sync"));
+//                     _debug("fetching " + url + " " + (async ? "async" : "sync"));
                     //</debug>
                     xhr.open('GET', url, async);
                     xhr.send(null);
@@ -860,12 +906,13 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
             urls = url.charAt ? [ url ] : url,
             charset = cfg.charset || Boot.config.charset;
 
-        _apply(cfg, {
-            urls: urls,
-            charset: charset
-        });
         _apply(this, cfg);
+            
+        delete this.url;
+        this.urls = urls;
+        this.charset = charset;
     };
+    
     Request.prototype = {
         $isRequest: true,
 
@@ -882,142 +929,130 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
             return loadOrderMap;
         },
 
-        getLoadIndexes: function (index, indexMap, loadOrder, includeUses, skipLoaded) {
-            var item = loadOrder[index],
-                len, i, reqs, entry, stop, added, idx, ridx, url;
-
-            if (indexMap[index]) {
+        getLoadIndexes: function (item, indexMap, loadOrder, includeUses, skipLoaded) {
+            var resolved = [],
+                queue = [item],
+                itemIndex = item.idx,
+                queue, entry, dependencies, depIndex, i, len;
+            
+            if (indexMap[itemIndex]) {
                 // prevent cycles
-                return indexMap;
+                return resolved;
             }
-
-            indexMap[index] = true;
-
-            stop = false;
-            while (!stop) {
-                added = false;
-
-                // iterate the requirements for each index and
-                // accumulate in the index map
-                for (idx in indexMap) {
-                    if (indexMap.hasOwnProperty(idx)) {
-                        item = loadOrder[idx];
-                        if (!item) {
-                            continue;
-                        }
-                        url = this.prepareUrl(item.path);
-                        entry = Boot.getEntry(url);
-                        if (!skipLoaded || !entry || !entry.done) {
-                            reqs = item.requires;
-                            if (includeUses && item.uses) {
-                                reqs = reqs.concat(item.uses);
-                            }
-                            for (len = reqs.length, i = 0; i < len; i++) {
-                                ridx = reqs[i];
-                                // if we find a requirement that wasn't
-                                // already in the index map,
-                                // set the added flag to indicate we need to
-                                // reprocess
-                                if (!indexMap[ridx]) {
-                                    indexMap[ridx] = true;
-                                    added = true;
-                                }
-                            }
+            
+            // Both indexMap and resolved are sparse arrays keyed by indexes.
+            // This gives us a naturally sorted sequence of indexes later on
+            // when we need to convert them to paths.
+            // indexMap is the map of all indexes we have visited at least once
+            // per the current expandUrls() invocation, and resolved is the map
+            // of all dependencies for the current item that are not included
+            // in indexMap.
+            indexMap[itemIndex] = resolved[itemIndex] = true;
+            
+            while (item = queue.shift()) {
+                // Canonicalizing URLs is expensive, we try to avoid it
+                if (item.canonicalPath) {
+                    entry = Boot.getEntry(item.path, null, true);
+                }
+                else {
+                    entry = Boot.getEntry(this.prepareUrl(item.path));
+                }
+                
+                if (!(skipLoaded && entry.done)) {
+                    if (includeUses && item.uses && item.uses.length) {
+                        dependencies = item.requires.concat(item.uses);
+                    }
+                    else {
+                        dependencies = item.requires;
+                    }
+                    
+                    for (i = 0, len = dependencies.length; i < len; i++) {
+                        depIndex = dependencies[i];
+                        
+                        if (!indexMap[depIndex]) {
+                            indexMap[depIndex] = resolved[depIndex] = true;
+                            queue.push(loadOrder[depIndex]);
                         }
                     }
                 }
-
-                // if we made a pass through the index map and didn't add anything
-                // then we can stop
-                if (!added) {
-                    stop = true;
-                }
             }
-
-            return indexMap;
+            
+            return resolved;
         },
 
-        getPathsFromIndexes: function (indexMap, loadOrder) {
-            var indexes = [],
-                paths = [],
-                index, len, i;
-
-            for (index in indexMap) {
-                if (indexMap.hasOwnProperty(index) && indexMap[index]) {
-                    indexes.push(index);
+        getPathsFromIndexes: function (indexes, loadOrder) {
+            var paths = [],
+                index, len;
+            
+            // indexes is a sparse array with values being true for defined indexes
+            for (index = 0, len = indexes.length; index < len; index++) {
+                if (indexes[index]) {
+                    paths.push(loadOrder[index].path);
                 }
             }
-
-            indexes.sort(function (a, b) {
-                return a - b;
-            });
-
-            // convert indexes back into load paths
-            for (len = indexes.length, i = 0; i < len; i++) {
-                paths.push(loadOrder[indexes[i]].path);
-            }
-
+            
             return paths;
         },
 
-        expandUrl: function (url, indexMap, includeUses, skipLoaded) {
-            if (typeof url == 'string') {
-                url = [url];
-            }
-
-            var me = this,
-                loadOrder = me.loadOrder,
-                loadOrderMap = me.loadOrderMap;
-
+        expandUrl: function (url, loadOrder, loadOrderMap, indexMap, includeUses, skipLoaded) {
+            var item, resolved;
+            
             if (loadOrder) {
-                loadOrderMap = loadOrderMap || me.createLoadOrderMap(loadOrder);
-                me.loadOrderMap = loadOrderMap;
-                indexMap = indexMap || {};
-                var len = url.length,
-                    unmapped = [],
-                    i, item;
-
-                for (i = 0; i < len; i++) {
-                    item = loadOrderMap[url[i]];
-                    if (item) {
-                        me.getLoadIndexes(item.idx, indexMap, loadOrder, includeUses, skipLoaded);
-                    } else {
-                        unmapped.push(url[i]);
+                item = loadOrderMap[url];
+                
+                if (item) {
+                    resolved = this.getLoadIndexes(item, indexMap, loadOrder, includeUses, skipLoaded);
+                    
+                    if (resolved.length) {
+                        return this.getPathsFromIndexes(resolved, loadOrder);
                     }
                 }
-
-
-                return me.getPathsFromIndexes(indexMap, loadOrder).concat(unmapped);
             }
-            return url;
+            
+            return [url];
         },
 
         expandUrls: function (urls, includeUses) {
-            if (typeof urls == "string") {
+            var me = this,
+                loadOrder = me.loadOrder,
+                expanded = [],
+                expandMap = {},
+                indexMap = [],
+                loadOrderMap, tmpExpanded, i, len, t, tlen, tUrl;
+            
+            if (typeof urls === "string") {
                 urls = [urls];
             }
-
-            var expanded = [],
-                expandMap = {},
-                tmpExpanded,
-                len = urls.length,
-                i, t, tlen, tUrl;
-
-            for (i = 0; i < len; i++) {
-                tmpExpanded = this.expandUrl(urls[i], {}, includeUses, true);
+            
+            if (loadOrder) {
+                loadOrderMap = me.loadOrderMap;
+                
+                if (!loadOrderMap) {
+                    loadOrderMap = me.loadOrderMap = me.createLoadOrderMap(loadOrder);
+                }
+            }
+            
+            for (i = 0, len = urls.length; i < len; i++) {
+                // We don't want to skip loaded entries (last argument === false).
+                // There are some overrides that get loaded before their respective classes,
+                // and when the class dependencies are processed we don't want to skip over
+                // the overrides' dependencies just because they were loaded first.
+                tmpExpanded = this.expandUrl(urls[i], loadOrder, loadOrderMap, indexMap, includeUses, false);
+                
                 for (t = 0, tlen = tmpExpanded.length; t < tlen; t++) {
                     tUrl = tmpExpanded[t];
+                    
                     if (!expandMap[tUrl]) {
                         expandMap[tUrl] = true;
                         expanded.push(tUrl);
                     }
                 }
             }
-
-            if (expanded.length == 0) {
+            
+            if (expanded.length === 0) {
                 expanded = urls;
             }
-
+            
             return expanded;
         },
 
@@ -1059,21 +1094,36 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
         getEntries: function () {
             var me = this,
                 entries = me.entries,
-                i, entry, urls, url;
+                loadOrderMap, item, i, entry, urls, url;
+            
             if (!entries) {
                 entries = [];
                 urls = me.getUrls();
+                
+                // If we have loadOrder array then the map will be expanded by now
+                if (me.loadOrder) {
+                    loadOrderMap = me.loadOrderMap;
+                }
+                
                 for (i = 0; i < urls.length; i++) {
                     url = me.prepareUrl(urls[i]);
+                    
+                    if (loadOrderMap) {
+                        item = loadOrderMap[url];
+                    }
+                    
                     entry = Boot.getEntry(url, {
                         buster: me.buster,
                         charset: me.charset
-                    });
+                    }, item && item.canonicalPath);
+                    
                     entry.requests.push(me);
                     entries.push(entry);
                 }
+                
                 me.entries = entries;
             }
+            
             return entries;
         },
 
@@ -1082,7 +1132,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
                 entries = me.getEntries(),
                 len = entries.length,
                 start = me.loadStart || 0,
-                continueLoad, entry, i;
+                continueLoad, entries, entry, i;
 
             if(sync !== undefined) {
                 me.sync = sync;
@@ -1177,7 +1227,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
                 listener;
             if(listeners) {
                 //<debug>
-                _debug("firing request listeners");
+//                 _debug("firing request listeners");
                 //</debug>
                 while((listener = listeners.shift())) {
                     listener(this);
@@ -1196,7 +1246,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
         }
 
         //<debug>
-        _debug("creating entry for " + cfg.url);
+//         _debug("creating entry for " + cfg.url);
         //</debug>
 
         var charset = cfg.charset || Boot.config.charset,
@@ -1222,13 +1272,13 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
             }
         }
 
-        _apply(cfg, {
-            charset: charset,
-            buster: buster,
-            requests: []
-        });
         _apply(this, cfg);
+        
+        this.charset = charset;
+        this.buster = buster;
+        this.requests = [];
     };
+    
     Entry.prototype = {
         $isEntry: true,
         done: false,
@@ -1239,7 +1289,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
             var me = this;
             if(me.crossDomain === undefined) {
                 //<debug>
-                _debug("checking " + me.getLoadUrl() + " for prefix " + Boot.origin);
+//                 _debug("checking " + me.getLoadUrl() + " for prefix " + Boot.origin);
                 //</debug>
                 me.crossDomain = (me.getLoadUrl().indexOf(Boot.origin) !== 0);
             }
@@ -1264,7 +1314,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
                 el = me.el;
             if (!el) {
                 //<debug>
-                _debug("creating element for " + me.url);
+//                 _debug("creating element for " + me.url);
                 //</debug>
                 if (me.isCss()) {
                     tag = tag || "link";
@@ -1297,7 +1347,10 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
 
         getLoadUrl: function () {
             var me = this,
-                url = Boot.canonicalUrl(me.url);
+                url;
+            
+            url = me.canonicalPath ? me.url : Boot.canonicalUrl(me.url);
+            
             if (!me.loadUrl) {
                 me.loadUrl = !!me.buster
                     ? (url + (url.indexOf('?') === -1 ? '?' : '&') + me.buster)
@@ -1353,27 +1406,36 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
 
         createLoadElement: function(callback) {
             var me = this,
-                el = me.getElement(),
-                readyStateChange = function(){
+                el = me.getElement();
+            
+            me.preserve = true;
+            
+            el.onerror = function() {
+                me.error = true;
+                
+                if (callback) {
+                    callback();
+                    callback = null;
+                }
+            };
+            
+            if (Boot.isIE10m) {
+                el.onreadystatechange = function() {
                     if (this.readyState === 'loaded' || this.readyState === 'complete') {
-                        if(callback) {
+                        if (callback) {
                             callback();
+                            callback = this.onreadystatechange = this.onerror = null;
                         }
                     }
-                },
-                errorFn = function() {
-                    me.error = true;
-                    if(callback) {
-                        callback();
-                    }
                 };
-            me.preserve = true;
-            el.onerror = errorFn;
-            if(Boot.hasReadyState) {
-                el.onreadystatechange = readyStateChange;
-            } else {
-                el.onload = callback;
             }
+            else {
+                el.onload = function() {
+                    callback();
+                    callback = this.onload = this.onerror = null;
+                };
+            }
+            
             // IE starts loading here
             el[me.prop] = me.getLoadUrl();
         },
@@ -1385,7 +1447,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
 
         inject: function (content, asset) {
             //<debug>
-            _debug("injecting content for " + this.url);
+//             _debug("injecting content for " + this.url);
             //</debug>
             var me = this,
                 head = Boot.getHead(),
@@ -1440,6 +1502,8 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
         loadCrossDomain: function() {
             var me = this,
                 complete = function(){
+                    me.el.onerror = me.el.onload = emptyFn;
+                    me.el = null;
                     me.loaded = me.evaluated = me.done = true;
                     me.notifyRequests();
                 };
@@ -1456,6 +1520,8 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
         loadElement: function() {
             var me = this,
                 complete = function(){
+                    me.el.onerror = me.el.onload = emptyFn;
+                    me.el = null;
                     me.loaded = me.evaluated = me.done = true;
                     me.notifyRequests();
                 };
@@ -1496,8 +1562,11 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
                 // for async modes, we have some options
                 if (!sync) {
                     // if cross domain, just inject the script tag and let the onload
-                    // events drive the progression
-                    if(me.isCrossDomain()) {
+                    // events drive the progression.
+                    // IE10 also needs sequential loading because of a bug that makes it
+                    // fire readystate event prematurely:
+                    // https://connect.microsoft.com/IE/feedback/details/729164/ie10-dynamic-script-element-fires-loaded-readystate-prematurely
+                    if (Boot.isIE10 || me.isCrossDomain()) {
                         return me.loadCrossDomain();
                     }
                     // for IE, use the readyStateChange allows us to load scripts in parallel
@@ -1627,7 +1696,7 @@ Ext.Boot = Ext.Boot || (function (emptyFn) {
                 listener;
             if(listeners && listeners.length > 0) {
                 //<debug>
-                _debug("firing event listeners for url " + this.url);
+//                 _debug("firing event listeners for url " + this.url);
                 //</debug>
                 while((listener = listeners.shift())) {
                     listener(this);
