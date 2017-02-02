@@ -276,7 +276,7 @@ Ext.define('elmasse.i18n.Bundle', {
     Ext.override(Ext.Base, {
         initConfig: function(instanceConfig) {
             var me = this,
-                cfg = me.getConfigurator(),
+                cfg = me.self.getConfigurator(),
                 k;
 
             me.initConfig = Ext.emptyFn; // ignore subsequent calls to initConfig

@@ -108,6 +108,7 @@
         <x-compile refid="${compiler.ref.id}">
             <![CDATA[
                 slicer-manifest
+                    -jsonp=Ext.Microloader.setManifest
                     -removeBootstrapCssEntries=${remove.slicer.css.bootstrap.entries}
                     -cssFile=${package.example.css}
                     -basePath=${bootstrap.base.path}
