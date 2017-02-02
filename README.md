@@ -161,7 +161,10 @@ We can use the lazy definition so the bundle keys are defined into the views. Ju
 
 ##Changelog
 
-###version 1.1.0 (master)
+###version 1.2.0 (master)
+- Working version for ExtJS 6.2.1
+
+###version 1.1.0
 - Changed namespace to `elmasse.i18n`
 - Working version for ExtJS 6.x
 - Examples for using ViewControllers and ViewModels to change bundles on the fly.
