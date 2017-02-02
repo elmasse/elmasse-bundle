@@ -65,7 +65,7 @@ You can see a working example under the `examples` folder.
             //2
             bundle: {
                 bundle: 'Application',
-                lang: 'en-US',
+                language: 'en-US',
                 path: 'resources',
                 noCache: true
             },
@@ -95,7 +95,7 @@ Now you can choose between `.properties` and `.json` files. You can specify whic
 
             bundle: {
                 bundle: 'Application',
-                lang: 'en-US',
+                language: 'en-US',
                 path: 'resources',
                 noCache: true,
                 format: 'json' //json format!
@@ -137,7 +137,7 @@ We can use the lazy definition so the bundle keys are defined into the views. Ju
 
             bundle: {
                 bundle: 'Application',
-                lang: 'en-US',
+                language: 'en-US',
                 path: 'resources',
                 noCache: true,
                 format: 'json' //json format!
