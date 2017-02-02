@@ -10,7 +10,7 @@ Ext.define('bundleApp.Application', {
 
     bundle: {
         bundle: 'Application',
-        lang: 'en-US',
+        language: 'en-US',
         path: 'resources',
         noCache: true
     },
