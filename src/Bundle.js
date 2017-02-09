@@ -276,12 +276,21 @@ Ext.define('elmasse.i18n.Bundle', {
     Ext.override(Ext.Base, {
         initConfig: function(instanceConfig) {
             var me = this,
-                cfg = me.self.getConfigurator(),
+                config = me.config || {},
+                cfg = me.self.getConfigurator(),                
                 k;
 
             me.initConfig = Ext.emptyFn; // ignore subsequent calls to initConfig
             me.initialConfig = instanceConfig || {};
 
+            //replace class configs
+            for(k in config){
+                if(config.hasOwnProperty(k) && config[k] && typeof config[k] === 'object' && config[k].type && config[k].type === 'bundle'){
+                    config[k] = elmasse.i18n.Bundle.instance.getMsg(config[k].key);
+                }
+            }
+
+            //replace instanceConfigs
             for(k in instanceConfig){
                 if(instanceConfig.hasOwnProperty(k) && instanceConfig[k] && typeof instanceConfig[k] === 'object' && instanceConfig[k].type && instanceConfig[k].type === 'bundle'){
                     instanceConfig[k] = elmasse.i18n.Bundle.instance.getMsg(instanceConfig[k].key);
