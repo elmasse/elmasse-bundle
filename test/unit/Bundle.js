@@ -337,4 +337,67 @@ describe("Bundle", function() {
         });           
     });
 
+    describe('lazy load definitions', function() {
+
+        var bundle,
+            params = {
+                language: 'en-US',
+                path: 'resources',
+                bundle: 'Application',
+                noCache: false,
+                asynchronousLoad: false // this is needed to avoid issues with ajax mocks
+            },
+            value = 'VALUE';
+            
+        beforeEach(function(done) {
+            bundle = Ext.create('elmasse.i18n.Bundle', params);
+
+            jasmine.Ajax.install();
+            
+            jasmine.Ajax
+                .stubRequest('resources/Application_en-US.properties')
+                .andReturn({
+                    responseHeaders: [{name: 'content-type', value: 'text/plain'}],
+                    responseText: '# this is a comment\n' +
+                        'key='+value+'\n'
+                });
+                
+
+            
+            bundle.on('loaded', function() {
+                done();
+            });
+            
+            bundle.load();
+            elmasse.i18n.Bundle.instance = bundle;
+
+        });
+        
+        afterEach(function() {
+            jasmine.Ajax.uninstall();
+            bundle.destroy();
+            elmasse.i18n.Bundle.instance = undefined;
+        });
+
+        it('should get the message for key in {type: "bundle", key="key"} when creating a component', function(){
+            var btn = Ext.create({
+                xtype: 'button',
+                text: { type: 'bundle', key: 'key'}
+            });
+
+            expect(btn.getText()).toEqual(value);
+        });
+
+        it('should get the message for key in {type: "bundle", key="key"} when defining a component', function(){
+            var Btn = Ext.define(null, {
+                extend: 'Ext.button.Button',
+                text: { type: 'bundle', key: 'key'}
+            });
+
+            var btn = Ext.create(Btn);
+
+            expect(btn.getText()).toEqual(value);
+        });
+    });
+
 });
