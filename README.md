@@ -126,7 +126,7 @@ As you can imagine the keys must match json keys structure, so for `panel.html` 
         }
 ```
 
-##Lazy Definition
+## Lazy Definition
 We can use the lazy definition so the bundle keys are defined into the views. Just use a plain object with the **type:** `bundle` and a **key**.
 
 ```js
@@ -159,30 +159,33 @@ We can use the lazy definition so the bundle keys are defined into the views. Ju
 
 ```
 
-##Changelog
+## Changelog
 
-###version 1.2.0 (master)
+### Unreleased (master)
+- Fixed issue with using lazy definitions in Ext.define not working properly. #30
+
+### version 1.2.0
 - Working version for ExtJS 6.2.1
 
-###version 1.1.0
+### version 1.1.0
 - Changed namespace to `elmasse.i18n`
 - Working version for ExtJS 6.x
 - Examples for using ViewControllers and ViewModels to change bundles on the fly.
 
-###version: 1.0.0
+### version: 1.0.0
 - Sencha Cmd Package
 - Working version for ExtJS 5.x
 
-###version: 0.3.3
+### version: 0.3.3
 - Working version for ExtJS 4.2.0
 - Fixed issue with Model ids.
 
-###version: 0.3.2 
+### version: 0.3.2 
 - New Json Reader implemented
 - Added tests for Bundle, reader.Property and reader.Json
 - Draft for 4.1.1/2 
 - Removed onReady method from Ext.i18n.Bundle
 - Added bundle to application
 
-###version: 0.3.1
+### version: 0.3.1
 - First draft for ExtJS 4.1.0-r3
