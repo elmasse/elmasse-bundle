@@ -2,6 +2,10 @@
 
 `elmasse.i18n.Bundle` as a Sencha Cmd Package.
 
+## UPDATE
+
+This repository is going on UNMAINTAINED state. I will be more than happy to transfer the repository to anyone who is interested in keeping this up to date with latest versions of ExtJS. Please create an issue or send me an email (Check my Profile)
+
 ## Note
 Since **version 1.1.0** namespace has been changed from `Ext.i18n` to `elmasse.i18n` to avoid namespace issues with ExtJS reserved package names.
 
